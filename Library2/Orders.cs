@@ -21,29 +21,29 @@ namespace Library2
     public abstract class OrderBase : ICalculateDelivery, ICalculateTotalPrice
     {
         public int Id { get; set; }
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         public OrderStatus Status { get; set; }
-        public decimal Discount { get; set; }
+        public decimal? Discount { get; set; }
 
-        internal string OrderNumber { get; set; }
+        internal string? OrderNumber { get; set; }
         public decimal CalculateDelivery()
         {
-            return Price * 0.1m;
+            return Price.GetValueOrDefault() * 0.1m;
         }
         public virtual decimal CalculateTotalPrice()
         {
             decimal deliveryCharge = CalculateDelivery();
-            decimal discountAmount = (Price * Discount) / 100;
-            return Price + deliveryCharge - discountAmount;
+            decimal discountAmount = Price.GetValueOrDefault() * Discount.GetValueOrDefault() / 100;
+            return Price.GetValueOrDefault() + deliveryCharge - discountAmount;
         }
 
         public virtual void ShowOrderDetails()
         {
             Console.WriteLine($"Order Id: {Id}");
-            Console.WriteLine($"Price: {Price}");
-            Console.WriteLine($"Discount: {Discount}");
-            Console.WriteLine($"OrderNumber: {OrderNumber}");
+            Console.WriteLine($"Price: {Price.GetValueOrDefault()}");
+            Console.WriteLine($"Discount: {(Discount.HasValue ? Discount.Value : 0)}");
+            Console.WriteLine($"OrderNumber: {OrderNumber ?? ""}");
             Console.WriteLine($"OrderStatus: {Status}");
             Console.WriteLine($"Delivery Charge: {CalculateDelivery()}");
             Console.WriteLine($"Total Price: {CalculateTotalPrice()}");
@@ -53,8 +53,8 @@ namespace Library2
         {
             Id = 0;
             Price = 110m;
-            Discount = 0.1m;
-            OrderNumber = "ORD-0001";
+            Discount = null;
+            OrderNumber = null;
             Status = OrderStatus.Pending;
         }
     }

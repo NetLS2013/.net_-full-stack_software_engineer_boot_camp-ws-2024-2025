@@ -32,6 +32,7 @@ namespace AccessibilityModifiers
             //electronicItem.ShowItemDetails();
             OnlineOrder order = new OnlineOrder();
             order.ShowOrderDetails();
+            Console.ReadKey();
         }
     }
 }
