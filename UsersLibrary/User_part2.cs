@@ -9,6 +9,7 @@ namespace UsersLibrary
             Console.WriteLine($"ID: {InternalId}");
             Console.WriteLine($"Name: {Name}");
             Console.WriteLine($"Email: {Email}");
+            Console.WriteLine($"Address: {HomeAddress}");
         }
     }
 }

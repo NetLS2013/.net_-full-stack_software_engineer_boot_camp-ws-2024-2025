@@ -3,6 +3,21 @@ using System.Xml.Linq;
 
 namespace OrdersLibrary
 {
+    public struct Dimensions
+    {
+        public double Length { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+
+        public Dimensions(double l, double w, double h)
+        {
+            Length = l;
+            Width = w;
+            Height = h;
+        }
+
+        public override string ToString() => $"{Length} x {Width} x {Height} cm";
+    }
     public abstract class OrderBase
     {
         public int OrderNumber { get; set; }
@@ -35,7 +50,7 @@ namespace OrdersLibrary
     public abstract class ItemBase
     {
         public string ItemName { get; set; }
-
+        public Dimensions Size { get; set; }
         protected decimal WholesalePrice { get; set; }
 
         private protected decimal InternalCost { get; set; }
@@ -53,15 +68,16 @@ namespace OrdersLibrary
     {
         public int WarrantyMonths { get; set; }
 
-        public ElectronicsItem(string name)
+        public ElectronicsItem(string name, Dimensions size)
             : base(name, 1200, 900)
         {
             WarrantyMonths = 24;
+            Size = size;
         }
 
         public override void ShowPrices()
         {
-            Console.WriteLine($"Electronics: {ItemName}");
+            Console.WriteLine($"Electronics: {ItemName}, Size: {Size}");
             Console.WriteLine($"Price: {WholesalePrice}");
             Console.WriteLine($"Warranty: {WarrantyMonths} months");
         }

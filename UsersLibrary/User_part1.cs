@@ -2,17 +2,33 @@
 
 namespace UsersLibrary
 {
+    public struct Address
+    {
+        public string City { get; }
+        public string Street { get; }
+        public string HouseNumber { get; }
+
+        public Address(string city, string street, string house)
+        {
+            City = city;
+            Street = street;
+            HouseNumber = house;
+        }
+        public override string ToString() => $"{City}, вул. {Street}, буд. {HouseNumber}";
+    }
     public abstract partial class User
     {
         private protected int InternalId { get; set; }
         public string Name { get; set; }
         protected string Email { get; set; }
+        public Address HomeAddress { get; set; }
 
-        protected User(int internalId, string name, string email)
+        protected User(int internalId, string name, string email, Address address)
         {
             InternalId = internalId;
             Name = name;
             Email = email;
+            HomeAddress = address;
         }
 
         public abstract void ShowInfo();
@@ -23,8 +39,8 @@ namespace UsersLibrary
         public int BonusPoints { get; private set; }
         public decimal ExtraDiscount { get; private set; }
 
-        public PremiumUser(int id, string name, string email)
-            : base(id, name, email)
+        public PremiumUser(int id, string name, string email, Address address)
+            : base(id, name, email, address)
         {
             BonusPoints = 100;
             ExtraDiscount = 15;
@@ -46,8 +62,8 @@ namespace UsersLibrary
 
     public sealed class Customer : User
     {
-        public Customer(int id, string name, string email)
-            : base(id, name, email) { }
+        public Customer(int id, string name, string email, Address address)
+            : base(id, name, email, address) { }
 
         public override void ShowInfo()
         {
