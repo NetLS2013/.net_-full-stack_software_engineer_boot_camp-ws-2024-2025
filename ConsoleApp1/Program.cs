@@ -5,53 +5,41 @@ class Program
 {
     static void Main(string[] args)
     {
-        Customer regularUser = new Customer { FullName = "Vladyslav Shnurok", Email = "vlad@test.com" };
-        Console.WriteLine(regularUser.GetWelcomeMessage());
+        User regularUser = new Customer { FullName = "Vladyslav Shnurok", Email = "vlad@test.com" };
+        User vipUser = new PremiumCustomer { FullName = "Elon Musk" }; // Поліморфізм: змінна типу User
 
-        PremiumCustomer vipUser = new PremiumCustomer { FullName = "Elon Musk" };
+        Console.WriteLine(regularUser.GetWelcomeMessage());
         Console.WriteLine(vipUser.GetWelcomeMessage());
         Console.WriteLine();
 
         ExtendedOrder myOrder = new ExtendedOrder();
         
         var phone = new ElectronicsItem("iPhone 15", 1200, 24);
-        phone.SetCost(900);
-        
         phone.Dimensions = new ItemDimensions(7.1, 14.7, 0.8);
 
         var tShirt = new ClothingItem("Gucci Shirt", 500, "L");
         tShirt.Material = "Cotton"; 
-        tShirt.SetCost(50);
-        
         tShirt.Dimensions = new ItemDimensions(30, 40, 2);
 
         myOrder.Items.Add(phone);
         myOrder.Items.Add(tShirt);
-
-        Console.WriteLine("--- Order Details ---");
-        foreach (var item in myOrder.Items)
-        {
-            Console.Write($"Item: {item.Name}, Price: ${item.PublicPrice} ");
-            
-            Console.Write($"[Box: {item.Dimensions}, Volume: {item.Dimensions.GetVolume():F1} cm3] ");
-
-            if (item is ElectronicsItem electronics)
-            {
-                Console.WriteLine($"\n   -> Warranty: {electronics.WarrantyMonths} months");
-            }
-            else if (item is ClothingItem clothing)
-            {
-                Console.WriteLine($"\n   -> Size: {clothing.Size}, Material: {clothing.Material}");
-            }
-            else
-            {
-                Console.WriteLine();
-            }
-        }
-
         myOrder.ApplySpecialDiscount(0.15m);
-        Console.WriteLine("---------------------");
-        Console.WriteLine($"Total to pay (with discount): ${myOrder.CalculateTotal()}");
+
+        Console.WriteLine("--- Order Processing via Interfaces ---");
+        
+        PrintOrderFinancials(myOrder);
+        PrintShippingLogistics(myOrder);
+    }
+
+
+    static void PrintOrderFinancials(IOrderPricing order)
+    {
+        Console.WriteLine($"[Finance System]: Total to pay: ${order.CalculateTotal():F2}");
+    }
+
+    static void PrintShippingLogistics(IOrderShipping order)
+    {
+        Console.WriteLine($"[Logistics System]: {order.GetShippingDetails()}");
+        Console.WriteLine($"[Logistics System]: Delivery Cost: ${order.CalculateShippingCost():F2}");
     }
 }
-

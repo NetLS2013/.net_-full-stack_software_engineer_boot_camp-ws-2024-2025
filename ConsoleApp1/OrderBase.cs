@@ -1,6 +1,6 @@
 namespace OrderLibrary;
 
-public abstract class OrderBase
+public abstract class OrderBase : IOrderPricing, IOrderShipping
 {
     public Guid OrderId { get; set; } = Guid.NewGuid();
     public List<ItemBase> Items { get; set; } = new();
@@ -16,12 +16,11 @@ public abstract class OrderBase
         }
         return total * (1 - DiscountPercentage);
     }
-}
 
-public class ExtendedOrder : OrderBase
-{
-    public void ApplySpecialDiscount(decimal discount)
+    public abstract decimal CalculateShippingCost();
+    
+    public virtual string GetShippingDetails()
     {
-        DiscountPercentage = discount;
+        return $"Shipping calculated for Order: {OrderId}";
     }
 }
