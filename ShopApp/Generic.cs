@@ -8,7 +8,7 @@ namespace GenericTests
 {
     public abstract class GenericTestClassBase<T>
     {
-        public T Params { get; set; }
+        public T? Params { get; set; }
         public abstract bool Equals(T param);
     }
     public class People
@@ -17,9 +17,9 @@ namespace GenericTests
         public int Age { get; set; }
         public string Email { get; set; }
 
-        public bool IsMan { get; set; }
+        public bool? IsMan { get; set; }
 
-        public People(string name, int age, string email, bool isMan)
+        public People(string name, int age, string email, bool? isMan)
         {
             Name = name;
             Age = age;
@@ -33,6 +33,11 @@ namespace GenericTests
         {
             if (Params == null || param == null)
                 return false;
+            if (Params.IsMan.HasValue && param.IsMan.HasValue)
+            {
+                if (Params.IsMan.Value != param.IsMan.Value)
+                    return false;
+            }
 
             return Params.Name == param.Name &&
                    Params.Age == param.Age &&

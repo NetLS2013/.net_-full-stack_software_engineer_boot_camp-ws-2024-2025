@@ -16,16 +16,21 @@ namespace OrdersLibrary
     {
         public double Length { get; set; }
         public double Width { get; set; }
-        public double Height { get; set; }
+        public double? Height { get; set; }
 
-        public Dimensions(double l, double w, double h)
+        public Dimensions(double l, double w, double? h)
         {
             Length = l;
             Width = w;
             Height = h;
         }
 
-        public override string ToString() => $"{Length} x {Width} x {Height} cm";
+        public override string ToString()
+        {
+            return Height.HasValue
+                ? $"{Length} x {Width} x {Height.Value} cm"
+                : $"{Length} x {Width} cm";
+        }
     }
     public abstract class OrderBase
     {
@@ -125,7 +130,7 @@ namespace OrdersLibrary
     }
     public sealed class FoodItem : ItemBase, IPricedItem, IDeliverable
     {
-        public DateTime ExpirationDate { get; set; }
+        public DateTime? ExpirationDate { get; set; }
 
         public FoodItem(string name)
             : base(name, 50, 30)
@@ -138,7 +143,7 @@ namespace OrdersLibrary
         {
             Console.WriteLine($"Food: {ItemName}");
             Console.WriteLine($"Price: {WholesalePrice}");
-            Console.WriteLine($"Expires: {ExpirationDate:d}");
+            Console.WriteLine(ExpirationDate.HasValue ? $"Expires: {ExpirationDate.Value:d}" : "Expiration date not specified");
             Console.WriteLine($"Category: {Category}");
         }
         public decimal GetPrice() => WholesalePrice;

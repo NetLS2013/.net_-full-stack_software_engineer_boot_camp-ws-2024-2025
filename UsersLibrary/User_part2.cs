@@ -8,7 +8,7 @@ namespace UsersLibrary
         {
             Console.WriteLine($"ID: {InternalId}");
             Console.WriteLine($"Name: {Name}");
-            Console.WriteLine($"Email: {Email}");
+            Console.WriteLine(Email != null ? $"Email: {Email}" : "Email: not specified");
             Console.WriteLine($"Address: {HomeAddress}");
         }
     }

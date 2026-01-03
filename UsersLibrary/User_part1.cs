@@ -13,15 +13,20 @@ namespace UsersLibrary
     {
         public City City { get; }
         public string Street { get; }
-        public string HouseNumber { get; }
+        public string? HouseNumber { get; }
 
-        public Address(City city, string street, string house)
+        public Address(City city, string street, string? house)
         {
             City = city;
             Street = street;
             HouseNumber = house;
         }
-        public override string ToString() => $"{City}, вул. {Street}, буд. {HouseNumber}";
+        public override string ToString()
+        {
+            return !string.IsNullOrEmpty(HouseNumber)
+                ? $"{City}, вул. {Street}, буд. {HouseNumber}"
+                : $"{City}, вул. {Street}";
+        }
     }
     public enum UserType
     {
@@ -33,12 +38,12 @@ namespace UsersLibrary
     {
         private protected int InternalId { get; set; }
         public string Name { get; set; }
-        protected string Email { get; set; }
+        protected string? Email { get; set; }
         public Address HomeAddress { get; set; }
         public UserType Type { get; protected set; }
 
 
-        protected User(int internalId, string name, string email, Address address)
+        protected User(int internalId, string name, string? email, Address address)
         {
             InternalId = internalId;
             Name = name;

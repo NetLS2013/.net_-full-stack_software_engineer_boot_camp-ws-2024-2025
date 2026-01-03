@@ -1,9 +1,10 @@
 ﻿using EnumBenchmark;
 using GenericTests;
-using OrdersLibrary;
 using PerformanceTests;
 using System;
 using UsersLibrary;
+using OrdersLibrary;
+
 
 class Program
 {
@@ -44,7 +45,7 @@ class Program
         order.AddItem(pricedLaptop, deliveryLaptop);
         order.AddItem(pricedApple, deliveryApple);
 
-        Console.WriteLine();
+        Console.WriteLine("=== Calculation ===");
 
         decimal total = order.CalculateTotalCost();
         Console.WriteLine($"Delivery laptop: {deliveryLaptop.GetDeliveryCost()} грн");
@@ -68,7 +69,10 @@ class Program
         Console.WriteLine($"p1 == p2: {test.Equals(p2)}"); // true
         Console.WriteLine($"p1 == p3: {test.Equals(p3)}"); // false
 
+
         Console.WriteLine("=== Enum Test ===");
         EnumBenchmarkTest.Run();
+
+
     }
 }
