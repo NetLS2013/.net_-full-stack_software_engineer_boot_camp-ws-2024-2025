@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessibilityModifiers", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StringAndStringBuilder", "StringAndStringBuilder\StringAndStringBuilder.csproj", "{22B865D7-B420-4C23-8F95-84EAF1A32256}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generics", "Generics\Generics.csproj", "{7ED10BED-4CAB-40F8-809E-FCBE9323E122}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{22B865D7-B420-4C23-8F95-84EAF1A32256}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22B865D7-B420-4C23-8F95-84EAF1A32256}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22B865D7-B420-4C23-8F95-84EAF1A32256}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED10BED-4CAB-40F8-809E-FCBE9323E122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED10BED-4CAB-40F8-809E-FCBE9323E122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED10BED-4CAB-40F8-809E-FCBE9323E122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED10BED-4CAB-40F8-809E-FCBE9323E122}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
