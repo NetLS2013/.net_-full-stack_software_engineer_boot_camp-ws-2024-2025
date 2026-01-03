@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../Shop.Orders/Shop.Orders.csproj" Id="df55f5ab-49a5-4ecc-809c-9595be06cd9c" />
+  <Project Path="../Shop.Users/Shop.Users.csproj" Id="99311181-1a57-4de9-b732-19e1a8c12319" />
+  <Project Path="ShopSolution.csproj" Id="95b40b8c-0f4a-47ae-84b5-4a9d3268a3b9" />
+</Solution>
