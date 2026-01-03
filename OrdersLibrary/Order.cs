@@ -77,6 +77,12 @@ namespace OrdersLibrary
         }
     }
 
+    public enum ItemCategory
+    {
+        Electronics,
+        Food
+    }
+
     public abstract class ItemBase
     {
         public string ItemName { get; set; }
@@ -84,6 +90,7 @@ namespace OrdersLibrary
         protected decimal WholesalePrice { get; set; }
 
         private protected decimal InternalCost { get; set; }
+        public ItemCategory Category { get; protected set; }
 
         protected ItemBase(string name, decimal price, decimal cost)
         {
@@ -103,6 +110,7 @@ namespace OrdersLibrary
         {
             WarrantyMonths = 24;
             Size = size;
+            Category = ItemCategory.Electronics;
         }
 
         public override void ShowPrices()
@@ -110,6 +118,7 @@ namespace OrdersLibrary
             Console.WriteLine($"Electronics: {ItemName}, Size: {Size}");
             Console.WriteLine($"Price: {WholesalePrice}");
             Console.WriteLine($"Warranty: {WarrantyMonths} months");
+            Console.WriteLine($"Category: {Category}");
         }
         public decimal GetPrice() => WholesalePrice;
         public decimal GetDeliveryCost() => 150;
@@ -122,6 +131,7 @@ namespace OrdersLibrary
             : base(name, 50, 30)
         {
             ExpirationDate = DateTime.Now.AddDays(7);
+            Category = ItemCategory.Food;
         }
 
         public override void ShowPrices()
@@ -129,6 +139,7 @@ namespace OrdersLibrary
             Console.WriteLine($"Food: {ItemName}");
             Console.WriteLine($"Price: {WholesalePrice}");
             Console.WriteLine($"Expires: {ExpirationDate:d}");
+            Console.WriteLine($"Category: {Category}");
         }
         public decimal GetPrice() => WholesalePrice;
         public decimal GetDeliveryCost() => 50;

@@ -6,14 +6,14 @@ class Program
 {
     static void Main()
     {
-        Address ivanAddress = new Address("Київ", "Хрещатик", "10");
+        Address ivanAddress = new Address(City.Kyiv, "Хрещатик", "10");
 
         User user = new Customer(101, "Iван", "ivan@mail.com", ivanAddress);
         user.ShowInfo();
 
         Console.WriteLine();
 
-        Address olenaAddress = new Address("Львiв", "Франка", "12");
+        Address olenaAddress = new Address(City.Lviv, "Франка", "12");
 
         PremiumUser premium = new PremiumUser(2, "Олена", "olena@mail.com", olenaAddress);
         premium.AddBonus(50);

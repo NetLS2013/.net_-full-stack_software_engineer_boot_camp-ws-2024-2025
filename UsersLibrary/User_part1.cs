@@ -2,13 +2,20 @@
 
 namespace UsersLibrary
 {
+    public enum City
+    {
+        Kyiv,
+        Lviv,
+        Odesa,
+        Kharkiv
+    }
     public struct Address
     {
-        public string City { get; }
+        public City City { get; }
         public string Street { get; }
         public string HouseNumber { get; }
 
-        public Address(string city, string street, string house)
+        public Address(City city, string street, string house)
         {
             City = city;
             Street = street;
@@ -16,12 +23,20 @@ namespace UsersLibrary
         }
         public override string ToString() => $"{City}, вул. {Street}, буд. {HouseNumber}";
     }
+    public enum UserType
+    {
+        Regular,
+        Premium
+    }
+
     public abstract partial class User
     {
         private protected int InternalId { get; set; }
         public string Name { get; set; }
         protected string Email { get; set; }
         public Address HomeAddress { get; set; }
+        public UserType Type { get; protected set; }
+
 
         protected User(int internalId, string name, string email, Address address)
         {
@@ -44,6 +59,7 @@ namespace UsersLibrary
         {
             BonusPoints = 100;
             ExtraDiscount = 15;
+            Type = UserType.Premium;
         }
 
         public override void ShowInfo()
@@ -52,6 +68,7 @@ namespace UsersLibrary
             ShowBaseData();
             Console.WriteLine($"Bonus points: {BonusPoints}");
             Console.WriteLine($"Extra discount: {ExtraDiscount}%");
+            Console.WriteLine($"Type: {Type}");
         }
 
         public void AddBonus(int points)
@@ -63,12 +80,13 @@ namespace UsersLibrary
     public sealed class Customer : User
     {
         public Customer(int id, string name, string email, Address address)
-            : base(id, name, email, address) { }
+            : base(id, name, email, address) { Type = UserType.Regular; }
 
         public override void ShowInfo()
         {
             Console.WriteLine("=== Customer ===");
             ShowBaseData();
+            Console.WriteLine($"Type: {Type}");
         }
     }
 }
