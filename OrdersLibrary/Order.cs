@@ -1,35 +1,38 @@
 ﻿using System;
+using System.Xml.Linq;
 
 namespace OrdersLibrary
 {
-    public class OrderBase
+    public abstract class OrderBase
     {
         public int OrderNumber { get; set; }
 
         protected decimal DiscountPercent { get; set; }
-
         private protected decimal InternalDiscount { get; set; }
 
-        public OrderBase(int orderNumber)
+        protected OrderBase(int number)
         {
-            OrderNumber = orderNumber;
+            OrderNumber = number;
             DiscountPercent = 10;
             InternalDiscount = 5;
         }
+
+        public abstract void ShowDiscounts();
     }
 
-    public class Order : OrderBase
+    public sealed class Order : OrderBase
     {
-        public Order(int orderNumber) : base(orderNumber) {}
+        public Order(int number) : base(number) { }
 
-        public void ShowDiscounts()
+        public override void ShowDiscounts()
         {
+            Console.WriteLine("=== Order Discounts ===");
             Console.WriteLine($"Discount: {DiscountPercent}%");
             Console.WriteLine($"Internal Discount: {InternalDiscount}%");
         }
     }
 
-    public class ItemBase
+    public abstract class ItemBase
     {
         public string ItemName { get; set; }
 
@@ -37,22 +40,47 @@ namespace OrdersLibrary
 
         private protected decimal InternalCost { get; set; }
 
-        public ItemBase(string name)
+        protected ItemBase(string name, decimal price, decimal cost)
         {
             ItemName = name;
-            WholesalePrice = 100;
-            InternalCost = 80;
+            WholesalePrice = price;
+            InternalCost = cost;
         }
+        public abstract void ShowPrices();
     }
 
-    public class Item : ItemBase
+    public sealed class ElectronicsItem : ItemBase
     {
-        public Item(string name) : base(name) { }
+        public int WarrantyMonths { get; set; }
 
-        public void ShowPrices()
+        public ElectronicsItem(string name)
+            : base(name, 1200, 900)
         {
-            Console.WriteLine($"Wholesale price: {WholesalePrice}");
-            Console.WriteLine($"Internal cost: {InternalCost}");
+            WarrantyMonths = 24;
+        }
+
+        public override void ShowPrices()
+        {
+            Console.WriteLine($"Electronics: {ItemName}");
+            Console.WriteLine($"Price: {WholesalePrice}");
+            Console.WriteLine($"Warranty: {WarrantyMonths} months");
+        }
+    }
+    public sealed class FoodItem : ItemBase
+    {
+        public DateTime ExpirationDate { get; set; }
+
+        public FoodItem(string name)
+            : base(name, 50, 30)
+        {
+            ExpirationDate = DateTime.Now.AddDays(7);
+        }
+
+        public override void ShowPrices()
+        {
+            Console.WriteLine($"Food: {ItemName}");
+            Console.WriteLine($"Price: {WholesalePrice}");
+            Console.WriteLine($"Expires: {ExpirationDate:d}");
         }
     }
 }
