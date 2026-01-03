@@ -4,6 +4,7 @@ using PerformanceTests;
 using System;
 using UsersLibrary;
 using OrdersLibrary;
+using ReferenceExperiments;
 
 
 class Program
@@ -72,6 +73,9 @@ class Program
 
         Console.WriteLine("=== Enum Test ===");
         EnumBenchmarkTest.Run();
+
+        Console.WriteLine("=== Type experiment ===");
+        ReferenceTypeExperiment.Run();
 
 
     }
