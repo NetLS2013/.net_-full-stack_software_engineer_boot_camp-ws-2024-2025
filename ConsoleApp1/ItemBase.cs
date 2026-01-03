@@ -5,6 +5,8 @@ public abstract class ItemBase
     public string Name { get; set; }
     public decimal PublicPrice { get; set; }
     protected decimal BaseCost { get; set; }
+    
+    public ItemDimensions Dimensions { get; set; }
 
     protected ItemBase(string name, decimal price)
     {
