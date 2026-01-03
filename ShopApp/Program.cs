@@ -21,19 +21,32 @@ class Program
 
         Console.WriteLine();
 
-        Order order = new Order(555);
-        order.ShowDiscounts();
+        Dimensions laptopSize = new Dimensions(35.5, 24.2, 2.0); // розміри
 
+        ElectronicsItem laptop = new ElectronicsItem("Ноутбук", laptopSize); // товари
+        FoodItem apple = new FoodItem("Яблуко");
+
+        laptop.ShowPrices(); // показ цін
         Console.WriteLine();
-
-        Dimensions laptopSize = new Dimensions(35.5, 24.2, 2.0);
-
-        ItemBase laptop = new ElectronicsItem("Ноутбук", laptopSize);
-        laptop.ShowPrices();
-
-        Console.WriteLine();
-
-        ItemBase apple = new FoodItem("Яблуко");
         apple.ShowPrices();
+        Console.WriteLine();
+
+        IPricedItem pricedLaptop = laptop; // застосовуємо інтерфейси
+        IDeliverable deliveryLaptop = laptop;
+
+        IPricedItem pricedApple = apple;
+        IDeliverable deliveryApple = apple;
+
+        Order order = new Order(555);
+        order.AddItem(pricedLaptop, deliveryLaptop);
+        order.AddItem(pricedApple, deliveryApple);
+
+        Console.WriteLine();
+
+        decimal total = order.CalculateTotalCost();
+        Console.WriteLine($"Delivery laptop: {deliveryLaptop.GetDeliveryCost()} грн");
+        Console.WriteLine($"Delivery apple: {deliveryApple.GetDeliveryCost()} грн");
+        Console.WriteLine($"Total order cost: {total} грн");
+        order.ShowDiscounts();
     }
 }

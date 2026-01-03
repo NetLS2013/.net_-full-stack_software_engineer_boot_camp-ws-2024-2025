@@ -3,6 +3,15 @@ using System.Xml.Linq;
 
 namespace OrdersLibrary
 {
+    public interface IPricedItem
+    {
+        decimal GetPrice();
+    }
+
+    public interface IDeliverable
+    {
+        decimal GetDeliveryCost();
+    }
     public struct Dimensions
     {
         public double Length { get; set; }
@@ -25,11 +34,32 @@ namespace OrdersLibrary
         protected decimal DiscountPercent { get; set; }
         private protected decimal InternalDiscount { get; set; }
 
+        protected readonly List<IPricedItem> pricedItems = new();
+        protected readonly List<IDeliverable> deliverables = new();
+
         protected OrderBase(int number)
         {
             OrderNumber = number;
             DiscountPercent = 10;
             InternalDiscount = 5;
+        }
+        public void AddItem(IPricedItem item, IDeliverable delivery)
+        {
+            pricedItems.Add(item);
+            deliverables.Add(delivery);
+        }
+
+        public decimal CalculateTotalCost()
+        {
+            decimal total = 0;
+
+            foreach (var item in pricedItems)
+                total += item.GetPrice();
+
+            foreach (var delivery in deliverables)
+                total += delivery.GetDeliveryCost();
+
+            return total;
         }
 
         public abstract void ShowDiscounts();
@@ -64,7 +94,7 @@ namespace OrdersLibrary
         public abstract void ShowPrices();
     }
 
-    public sealed class ElectronicsItem : ItemBase
+    public sealed class ElectronicsItem : ItemBase, IPricedItem, IDeliverable
     {
         public int WarrantyMonths { get; set; }
 
@@ -81,8 +111,10 @@ namespace OrdersLibrary
             Console.WriteLine($"Price: {WholesalePrice}");
             Console.WriteLine($"Warranty: {WarrantyMonths} months");
         }
+        public decimal GetPrice() => WholesalePrice;
+        public decimal GetDeliveryCost() => 150;
     }
-    public sealed class FoodItem : ItemBase
+    public sealed class FoodItem : ItemBase, IPricedItem, IDeliverable
     {
         public DateTime ExpirationDate { get; set; }
 
@@ -98,5 +130,7 @@ namespace OrdersLibrary
             Console.WriteLine($"Price: {WholesalePrice}");
             Console.WriteLine($"Expires: {ExpirationDate:d}");
         }
+        public decimal GetPrice() => WholesalePrice;
+        public decimal GetDeliveryCost() => 50;
     }
 }
