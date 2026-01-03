@@ -1,7 +1,8 @@
-﻿using PerformanceTests;
+﻿using GenericTests;
+using OrdersLibrary;
+using PerformanceTests;
 using System;
 using UsersLibrary;
-using OrdersLibrary;
 
 class Program
 {
@@ -52,5 +53,18 @@ class Program
 
         Console.WriteLine();
         StringPerformanceTest.Run();
+
+        Console.WriteLine();
+        Console.WriteLine("=== Generic Test ===");
+
+        People p1 = new People("Ivan", 20, "ivan@mail.com", true);
+        People p2 = new People("Ivan", 20, "ivan@mail.com", true);
+        People p3 = new People("Oleh", 25, "oleh@mail.com", false);
+
+        PeopleTest test = new PeopleTest();
+        test.Params = p1;
+
+        Console.WriteLine($"p1 == p2: {test.Equals(p2)}"); // true
+        Console.WriteLine($"p1 == p3: {test.Equals(p3)}"); // false
     }
 }
