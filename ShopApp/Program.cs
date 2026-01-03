@@ -1,4 +1,5 @@
-﻿using GenericTests;
+﻿using EnumBenchmark;
+using GenericTests;
 using OrdersLibrary;
 using PerformanceTests;
 using System;
@@ -66,5 +67,8 @@ class Program
 
         Console.WriteLine($"p1 == p2: {test.Equals(p2)}"); // true
         Console.WriteLine($"p1 == p3: {test.Equals(p3)}"); // false
+
+        Console.WriteLine("=== Enum Test ===");
+        EnumBenchmarkTest.Run();
     }
 }
