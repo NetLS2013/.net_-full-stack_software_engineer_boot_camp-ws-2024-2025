@@ -1,14 +1,15 @@
 namespace OrderLibrary;
 
-public class ItemBase
+public abstract class ItemBase
 {
     public string Name { get; set; }
     public decimal PublicPrice { get; set; }
     protected decimal BaseCost { get; set; }
 
-    protected decimal CalculateMargin()
+    protected ItemBase(string name, decimal price)
     {
-        return PublicPrice - BaseCost;
+        Name = name;
+        PublicPrice = price;
     }
 
     public void SetCost(decimal cost)

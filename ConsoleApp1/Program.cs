@@ -5,33 +5,49 @@ class Program
 {
     static void Main(string[] args)
     {
-        Customer customer = new Customer();
-        customer.FullName = "Vladyslav Shnurok";
-        customer.Email = "vlad@test.com";
-        
-        // customer.RegistrationType = "VIP"; // Помилка компіляції (protected)
-        // customer.CreatedAt; // Помилка компіляції (internal, бо ми в іншій збірці)
+        Customer regularUser = new Customer { FullName = "Vladyslav Shnurok", Email = "vlad@test.com" };
+        Console.WriteLine(regularUser.GetWelcomeMessage());
+        Console.WriteLine(regularUser.GetCustomerDetails());
+        Console.WriteLine();
 
-        Console.WriteLine(customer.GetCustomerDetails());
+        PremiumCustomer vipUser = new PremiumCustomer { FullName = "Elon Musk" };
+        Console.WriteLine(vipUser.GetWelcomeMessage());
+        Console.WriteLine();
 
         ExtendedOrder myOrder = new ExtendedOrder();
         
-        ItemBase item = new ItemBase { Name = "MacBook", PublicPrice = 10000 };
-        item.SetCost(800);
-        
-        // item.BaseCost = 500; // Помилка (protected)
+        var phone = new ElectronicsItem("iPhone 17 pro max", 1200, 24);
+        phone.SetCost(900);
 
-        myOrder.Items.Add(item);
-        myOrder.ApplySpecialDiscount(0.1m); 
+        var tShirt = new ClothingItem("Gucci Shirt", 500, "L");
+        tShirt.Material = "Cotton"; 
+        tShirt.SetCost(50);
 
-        Console.WriteLine($"Total: {myOrder.CalculateTotal()}");
+        myOrder.Items.Add(phone);
+        myOrder.Items.Add(tShirt);
+
+        Console.WriteLine("--- Order Details ---");
+        foreach (var item in myOrder.Items)
+        {
+            Console.Write($"Item: {item.Name}, Price: ${item.PublicPrice} ");
+
+            if (item is ElectronicsItem electronics)
+            {
+                Console.WriteLine($"[Electronics] Warranty: {electronics.WarrantyMonths} months");
+            }
+            else if (item is ClothingItem clothing)
+            {
+                Console.WriteLine($"[Clothing] Size: {clothing.Size}, Material: {clothing.Material}");
+            }
+            else
+            {
+                Console.WriteLine("[Generic Item]");
+            }
+        }
+
+        myOrder.ApplySpecialDiscount(0.15m); 
+        Console.WriteLine("---------------------");
+        Console.WriteLine($"Total to pay (with discount): ${myOrder.CalculateTotal()}");
     }
 }
 
-public class ExtendedOrder : OrderBase
-{
-    public void ApplySpecialDiscount(decimal discount)
-    {
-        DiscountPercentage = discount;
-    }
-}

@@ -13,4 +13,9 @@ public class Customer : User
     {
         return CreatedAt;
     }
+
+    public override string GetWelcomeMessage()
+    {
+        return $"Welcome, customer {FullName} !";
+    }
 }
