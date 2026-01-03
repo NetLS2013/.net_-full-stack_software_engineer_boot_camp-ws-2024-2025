@@ -1,0 +1,93 @@
+﻿@model UsersMvcApp.Models.MainPageViewModel
+
+@{
+    ViewData["Title"] = "Керування замовленнями";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-5">Система керування користувачами та замовленнями</h2>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Усі зареєстровані користувачі</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Ім'я</th>
+                        <th>Email</th>
+                        <th>Тип</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.AllUsers)
+                    {
+                        <tr>
+                            <td>@u.Id</td>
+                            <td>@u.Name</td>
+                            <td>@u.Email</td>
+                            <td>
+                                <span class="badge @(u.Type == UsersMvcApp.Models.UserType.Premium ? "bg-warning text-dark" : "bg-primary")">
+                                    @u.Type
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">Поточне замовлення клієнта: <span class="text-primary">@Model.SelectedOrder.User.Name</span></h3>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <span>Замовлення №@Model.SelectedOrder.OrderNumber</span>
+                    <span>Статус: Обробляється</span>
+                </div>
+                <div class="card-body">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Характеристики</th>
+                                <th>Доставка</th>
+                                <th class="text-end">Ціна</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SelectedOrder.Items)
+                            {
+                                <tr>
+                                    <td><strong>@item.ItemName</strong></td>
+                                    <td><small class="text-muted">@item.GetDetails()</small></td>
+                                    <td>@item.GetDeliveryCost() грн</td>
+                                    <td class="text-end">@item.GetPrice() грн</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end">Сума товарів та доставки:</td>
+                                <td class="text-end">@(Model.SelectedOrder.TotalItemsPrice + Model.SelectedOrder.TotalDeliveryCost) грн</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end text-danger">Знижка (@Model.SelectedOrder.DiscountPercent%):</td>
+                                <td class="text-end text-danger">-@((Model.SelectedOrder.TotalItemsPrice + Model.SelectedOrder.TotalDeliveryCost) * Model.SelectedOrder.DiscountPercent / 100) грн</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><h4>Разом до сплати:</h4></td>
+                                <td class="text-end"><h4 class="text-success">@Model.SelectedOrder.FinalTotal грн</h4></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
