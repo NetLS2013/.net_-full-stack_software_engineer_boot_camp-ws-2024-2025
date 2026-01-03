@@ -12,10 +12,10 @@ public sealed class ElectronicsItem : ItemBase
 
 public sealed class ClothingItem : ItemBase
 {
-    public string Size { get; set; }
-    public string Material { get; set; }
+    public ClothingSize Size { get; set; }
+    public FabricType Material { get; set; }
 
-    public ClothingItem(string name, decimal price, string size) : base(name, price)
+    public ClothingItem(string name, decimal price, ClothingSize size) : base(name, price)
     {
         Size = size;
     }

@@ -6,7 +6,9 @@ class Program
     static void Main(string[] args)
     {
         User regularUser = new Customer { FullName = "Vladyslav Shnurok", Email = "vlad@test.com" };
-        User vipUser = new PremiumCustomer { FullName = "Elon Musk" }; // Поліморфізм: змінна типу User
+        regularUser.SetRegistrationType(UserRole.Standard);
+
+        User vipUser = new PremiumCustomer { FullName = "Elon Musk" };
 
         Console.WriteLine(regularUser.GetWelcomeMessage());
         Console.WriteLine(vipUser.GetWelcomeMessage());
@@ -17,29 +19,26 @@ class Program
         var phone = new ElectronicsItem("iPhone 15", 1200, 24);
         phone.Dimensions = new ItemDimensions(7.1, 14.7, 0.8);
 
-        var tShirt = new ClothingItem("Gucci Shirt", 500, "L");
-        tShirt.Material = "Cotton"; 
+        var tShirt = new ClothingItem("Gucci Shirt", 500, ClothingSize.L);
+        tShirt.Material = FabricType.Cotton;
         tShirt.Dimensions = new ItemDimensions(30, 40, 2);
 
         myOrder.Items.Add(phone);
         myOrder.Items.Add(tShirt);
         myOrder.ApplySpecialDiscount(0.15m);
 
-        Console.WriteLine("--- Order Processing via Interfaces ---");
-        
         PrintOrderFinancials(myOrder);
         PrintShippingLogistics(myOrder);
     }
 
-
     static void PrintOrderFinancials(IOrderPricing order)
     {
-        Console.WriteLine($"[Finance System]: Total to pay: ${order.CalculateTotal():F2}");
+        Console.WriteLine($"Total to pay: ${order.CalculateTotal():F2}");
     }
 
     static void PrintShippingLogistics(IOrderShipping order)
     {
-        Console.WriteLine($"[Logistics System]: {order.GetShippingDetails()}");
-        Console.WriteLine($"[Logistics System]: Delivery Cost: ${order.CalculateShippingCost():F2}");
+        Console.WriteLine(order.GetShippingDetails());
+        Console.WriteLine($"Delivery Cost: ${order.CalculateShippingCost():F2}");
     }
 }

@@ -6,7 +6,7 @@ public sealed class PremiumCustomer : User
 
     public PremiumCustomer()
     {
-        SetRegistrationType("Premium Gold");
+        SetRegistrationType(UserRole.PremiumGold);
         BonusPoints = 100;
     }
 
