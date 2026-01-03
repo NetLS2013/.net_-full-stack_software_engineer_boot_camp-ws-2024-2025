@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PerformanceTests;
+using System;
 using UsersLibrary;
 using OrdersLibrary;
 
@@ -48,5 +49,8 @@ class Program
         Console.WriteLine($"Delivery apple: {deliveryApple.GetDeliveryCost()} грн");
         Console.WriteLine($"Total order cost: {total} грн");
         order.ShowDiscounts();
+
+        Console.WriteLine();
+        StringPerformanceTest.Run();
     }
 }
