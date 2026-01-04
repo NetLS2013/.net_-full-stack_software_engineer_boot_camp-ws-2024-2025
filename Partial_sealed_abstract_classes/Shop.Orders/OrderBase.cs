@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shop.Orders
 {
-    public abstract class OrderBase
+    public abstract class OrderBase : IOrderTotalCalculator, IShippingCalculator
     {
         private readonly List<ItemBase> _items = new List<ItemBase>();
 
@@ -25,5 +25,7 @@ namespace Shop.Orders
         }
 
         public abstract decimal CalculateTotal();
+
+        public abstract decimal CalculateDeliveryCost();
     }
 }

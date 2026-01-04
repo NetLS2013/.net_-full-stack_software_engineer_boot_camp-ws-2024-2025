@@ -32,5 +32,23 @@ namespace Shop.Orders
 
             return sum;
         }
+
+        public override decimal CalculateDeliveryCost()
+        {
+            decimal delivery = 50m;
+
+            foreach (var item in Items)
+            {
+                delivery += 10m;
+                Item generic = item as Item;
+                if (generic != null)
+                {
+                    decimal extra = generic.Size.VolumeCm3 / 1000m;
+                    delivery += extra;
+                }
+            }
+
+            return delivery;
+        }
     }
 }

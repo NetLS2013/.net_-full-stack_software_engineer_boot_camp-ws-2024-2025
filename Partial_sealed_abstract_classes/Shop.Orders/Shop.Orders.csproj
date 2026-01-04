@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="ElectronicsItem.cs" />
     <Compile Include="GroceryItem.cs" />
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="ItemBase.cs" />
     <Compile Include="ItemSize.cs" />

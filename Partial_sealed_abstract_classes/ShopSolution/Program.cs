@@ -26,7 +26,6 @@ namespace ShopSolution
             generic.SetPromoDiscount(7);
 
             generic.SetSize(new ItemSize(30m, 20m, 10m));
-            Console.WriteLine("Generic size: " + generic.Size + " | Volume: " + generic.Size.VolumeCm3 + " cm3");
 
             ElectronicsItem tv = new ElectronicsItem("TV", 1000m, 24);
             tv.SetSupplierDiscount(10);
@@ -43,10 +42,24 @@ namespace ShopSolution
             order.AddItem(milk);
             order.AddItem(cleaning);
 
+            void PrintOrderSummary(IOrderTotalCalculator totalCalc, IShippingCalculator shippingCalc)
+            {
+                decimal total = totalCalc.CalculateTotal();
+                decimal delivery = shippingCalc.CalculateDeliveryCost();
+                decimal grandTotal = total + delivery;
+
+                System.Console.WriteLine("Items total: " + total);
+                System.Console.WriteLine("Delivery: " + delivery);
+                System.Console.WriteLine("Grand total: " + grandTotal);
+            }
+            IOrderTotalCalculator totalCalculator = order;
+            IShippingCalculator shippingCalculator = order;
+
+
             Console.WriteLine("User: " + user);
-            Console.WriteLine("Total user discount: " + user.GetTotalDiscount() + "%");
-            Console.WriteLine("Order total: " + order.CalculateTotal());
             Console.WriteLine("Generic size: " + generic.Size + " | Volume: " + generic.Size.VolumeCm3 + " cm3");
+            Console.WriteLine("Total user discount: " + user.GetTotalDiscount() + "%");
+            PrintOrderSummary(totalCalculator, shippingCalculator);
 
             Console.ReadLine();
         }
