@@ -16,7 +16,6 @@ namespace Shop.Orders
             get { return _items.AsReadOnly(); }
         }
 
-        // знижки “не для юзера”
         protected decimal ManagerDiscountPercent { get; set; }
         protected internal decimal SeasonalDiscountPercent { get; set; }
 

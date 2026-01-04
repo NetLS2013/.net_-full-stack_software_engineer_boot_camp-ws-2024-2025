@@ -15,17 +15,16 @@ namespace Shop.Orders
             PremiumExtraDiscountPercent = 5m;
         }
 
-        public decimal GetTotalUserDiscount()
-        {
-            // бачимо PersonalDiscountPercent, бо воно protected internal і ми нащадок
-            return PersonalDiscountPercent + PremiumExtraDiscountPercent;
-        }
-
         public void SetPremiumExtraDiscount(decimal percent)
         {
             if (percent < 0) percent = 0;
             if (percent > 30) percent = 30;
             PremiumExtraDiscountPercent = percent;
+        }
+
+        public decimal GetTotalDiscount()
+        {
+            return PersonalDiscountPercent + PremiumExtraDiscountPercent;
         }
     }
 }

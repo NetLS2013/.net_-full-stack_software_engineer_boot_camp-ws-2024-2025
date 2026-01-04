@@ -27,7 +27,6 @@ namespace Shop.Orders
                 sum += item.GetNetPrice();
             }
 
-            // знижки ордера
             sum = sum - (sum * SeasonalDiscountPercent / 100m);
             sum = sum - (sum * ManagerDiscountPercent / 100m);
 

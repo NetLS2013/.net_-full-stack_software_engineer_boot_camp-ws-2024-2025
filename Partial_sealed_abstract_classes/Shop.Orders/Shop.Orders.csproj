@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DF55F5AB-49A5-4ECC-809C-9595BE06CD9C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Shop.Orders</RootNamespace>
     <AssemblyName>Shop.Orders</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,12 +48,11 @@
   <ItemGroup>
     <Compile Include="ElectronicsItem.cs" />
     <Compile Include="GroceryItem.cs" />
-    <Compile Include="Item.cs" />
     <Compile Include="ItemBase.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="OrderBase.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

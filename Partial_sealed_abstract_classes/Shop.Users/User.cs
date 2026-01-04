@@ -8,14 +8,14 @@ namespace Shop.Users
 {
     public abstract class User
     {
-        public System.Guid Id { get; private set; }
+        public Guid Id { get; private set; }
         public string Email { get; set; }
 
         protected string PasswordHash { get; private set; }
 
         protected User()
         {
-            Id = System.Guid.NewGuid();
+            Id = Guid.NewGuid();
             Email = "";
         }
 
@@ -27,6 +27,11 @@ namespace Shop.Users
         public bool HasPasswordHash()
         {
             return !string.IsNullOrEmpty(PasswordHash);
+        }
+
+        public override string ToString()
+        {
+            return Email + " (" + Id + ")";
         }
     }
 }

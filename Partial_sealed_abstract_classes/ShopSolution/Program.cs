@@ -8,33 +8,36 @@ using Shop.Orders;
 
 namespace ShopSolution
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            var customer = new Customer
-            {
-                Email = "test@mail.com",
-                LoyaltyLevel = 1
-            };
+            PremiumUser user = new PremiumUser();
+            user.Email = "premium@mail.com";
+            user.SetPersonalDiscount(10);
+            user.SetPremiumExtraDiscount(7);
 
-            customer.SetPasswordHash("HASH123");
-            customer.PrintDebugInfo();
-
-            var item1 = new Item("Keyboard", 1000m);
-            item1.SetSupplierDiscount(10);      // protected доступний через метод нащадка
-            item1.PromoDiscountPercent = 5;     // protected internal не доступний напряму
-
-            var order = new Order();
-            order.AddItem(item1);
-
-            order.SeasonalDiscountPercent = 3;  // protected internal не доступний напряму 
-            
+            Order order = new Order();
+            order.SetSeasonalDiscount(3);
             order.SetManagerDiscount(2);
 
-            var total = order.CalculateTotal();
-            Console.WriteLine($"Customer: {customer}");
-            Console.WriteLine($"Total: {total}");
+            ElectronicsItem tv = new ElectronicsItem("TV", 1000m, 24);
+            tv.SetSupplierDiscount(10);
+            tv.SetPromoDiscount(5);
+
+            GroceryItem milk = new GroceryItem("Milk", 50m, true);
+            milk.SetPromoDiscount(2);
+
+            ServiceItem cleaning = new ServiceItem("Cleaning", 200m, 3);
+            cleaning.SetPromoDiscount(10);
+
+            order.AddItem(tv);
+            order.AddItem(milk);
+            order.AddItem(cleaning);
+
+            Console.WriteLine("User: " + user);
+            Console.WriteLine("Total user discount: " + user.GetTotalDiscount() + "%");
+            Console.WriteLine("Order total: " + order.CalculateTotal());
 
             Console.ReadLine();
         }

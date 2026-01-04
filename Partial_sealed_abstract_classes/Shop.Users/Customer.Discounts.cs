@@ -16,6 +16,11 @@ namespace Shop.Orders
             if (percent > 50) percent = 50;
             PersonalDiscountPercent = percent;
         }
+
+        public decimal GetPersonalDiscount()
+        {
+            return PersonalDiscountPercent;
+        }
     }
 
 }

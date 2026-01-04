@@ -16,6 +16,7 @@ namespace Shop.Orders
         public Customer()
         {
             LoyaltyLevel = 0;
+            InternalNote = "";
         }
 
         public void UpgradeLoyalty()

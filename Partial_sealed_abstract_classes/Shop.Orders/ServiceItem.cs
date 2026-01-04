@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Shop.Orders
 {
-    public sealed class GroceryItem : ItemBase
+    public sealed class ServiceItem : ItemBase
     {
-        public bool IsPerishable { get; set; }
+        public int Hours { get; set; }
 
-        public GroceryItem(string name, decimal price, bool isPerishable)
+        public ServiceItem(string name, decimal pricePerHour, int hours)
         {
             Name = name;
-            BasePrice = price;
-            IsPerishable = isPerishable;
+            BasePrice = pricePerHour;
+            Hours = hours;
         }
 
         public void SetPromoDiscount(decimal percent)
@@ -24,7 +24,9 @@ namespace Shop.Orders
 
         public override decimal GetNetPrice()
         {
-            return ApplyDiscount(BasePrice, PromoDiscountPercent);
+            decimal total = BasePrice * Hours;
+            total = ApplyDiscount(total, PromoDiscountPercent);
+            return total;
         }
     }
 }
