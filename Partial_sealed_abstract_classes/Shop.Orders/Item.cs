@@ -8,24 +8,36 @@ namespace Shop.Orders
 {
     public sealed class Item : ItemBase
     {
+        public ItemSize Size { get; private set; }
+
         public Item(string name, decimal price)
         {
             Name = name;
-            Price = price;
+            BasePrice = price;
+            Size = new ItemSize(0m, 0m, 0m);
+        }
+
+        public void SetSize(ItemSize size)
+        {
+            Size = size;
         }
 
         public void SetSupplierDiscount(decimal percent)
         {
-            // SupplierDiscountPercent = protected
             SupplierDiscountPercent = percent;
         }
 
-        public decimal GetNetPriceForOrder()
+        public void SetPromoDiscount(decimal percent)
         {
-            // приклад: спочатку постачальник, потім промо
-            var p = ApplyDiscount(Price, SupplierDiscountPercent);
+            PromoDiscountPercent = percent;
+        }
+
+        public override decimal GetNetPrice()
+        {
+            decimal p = ApplyDiscount(BasePrice, SupplierDiscountPercent);
             p = ApplyDiscount(p, PromoDiscountPercent);
             return p;
         }
     }
 }
+
