@@ -30,12 +30,12 @@ class Program
         order.Items.Add(router);
         order.Items.Add(installationService);
 
-        decimal total = order.CalculateTotal();
-        Console.WriteLine($"------------------------------------------------");
-        Console.WriteLine($"Order Total: {total}");
+        PrintFinancialInfo(order);
+        PrintDeliveryInfo(order, customer.DefaultShippingAddress);
 
     }
     
+
     static void PrintCustomerInfo(Customer customer)
     {
         Console.WriteLine($"Customer: {customer.FullName}; Service Plan: {customer.ServicePlan}; Building: {customer.BuildingType}");
@@ -44,5 +44,20 @@ class Program
     static void PrintItem(ItemBase item)
     {
         Console.WriteLine($"Item: {item.Name}; Price: {item.Price}");
+    }
+
+    static void PrintFinancialInfo(IPriceCalculator calc)
+    {
+        Console.WriteLine($"------------------------------------------------");
+        Console.WriteLine($"Raw Price:\t{calc.CalculateRawPrice():N2}");
+        Console.WriteLine($"Discount:\t-{calc.CalculateDiscount():N2}");
+        Console.WriteLine($"Total Price:\t{calc.CalculateTotalPrice():N2}");
+    }
+
+    static void PrintDeliveryInfo(IDeliveryCalculator calc, Address address)
+    {
+        Console.WriteLine($"------------------------------------------------");
+        Console.WriteLine($"Delivery to {address.City}");
+        Console.WriteLine($"Shipping Cost:\t{calc.CalculateDeliveryCost(address.City):N2}");
     }
 }
