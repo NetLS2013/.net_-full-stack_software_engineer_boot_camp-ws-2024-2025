@@ -7,6 +7,7 @@ class Program
     public static void Main(string[] args)
     {
         PremiumCustomer customer = new PremiumCustomer("John Doe", "john.doe@gmail.com", "Reqular", "Private House");
+        customer.DefaultShippingAddress = new Address("Lviv", "Konovaltsia Street", "10B", 2);
         customer.PersonalDiscountRate = 0.05m;
         PrintCustomerInfo(customer);
 
@@ -19,7 +20,9 @@ class Program
         ServiceItem installationService = new ServiceItem("Installation Service", 900, customer.PersonalDiscountRate, 3, true);
         PrintItem(installationService);
 
-        HardwareItem router = new HardwareItem("Router v1", 1900, customer.PersonalDiscountRate, "56524545", 1.8m);
+        HardwareItem router = new HardwareItem(
+            "Router v1", 1900, customer.PersonalDiscountRate, "56524545", 1.8m, new ItemSize(20, 15, 5)
+            );
         PrintItem(router);
 
         OrderBase order = new PriorityOrder("Low", 0.05m);
