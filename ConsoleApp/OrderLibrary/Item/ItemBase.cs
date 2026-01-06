@@ -1,6 +1,6 @@
 ﻿namespace OrderLibrary.Item
 {
-    public class ItemBase
+    public abstract class ItemBase
     {
         public Guid Id { get; }
         public string Name { get; private set; }

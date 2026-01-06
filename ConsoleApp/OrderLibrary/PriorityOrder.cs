@@ -1,6 +1,6 @@
 ﻿namespace OrderLibrary
 {
-    public class PriorityOrder : OrderBase
+    public sealed class PriorityOrder : OrderBase
     {
         public string PriorityLevel { get; private set; }
 

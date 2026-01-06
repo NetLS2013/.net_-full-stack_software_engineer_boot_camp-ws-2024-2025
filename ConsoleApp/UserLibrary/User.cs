@@ -1,6 +1,6 @@
 ﻿namespace UserLibrary
 {
-    public class User
+    public abstract class User
     {
         public string FullName { get; private set; }
         public string Email { get; private set; }

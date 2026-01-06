@@ -2,7 +2,7 @@
 
 namespace OrderLibrary
 {
-    public class OrderBase
+    public abstract partial class OrderBase
     {
         public Guid Id { get; }
         public DateTime Date { get; }
@@ -16,17 +16,6 @@ namespace OrderLibrary
             Date = DateTime.UtcNow;
             DiscountRate = discount;
         }
-
-
-        public decimal CalculateTotal()
-        {
-            decimal sum = 0;
-            foreach (var item in Items)
-            {
-                sum += item.CalculateCurrentPrice();
-            }
-
-            return sum - (sum * DiscountRate);
-        }
     }
+
 }

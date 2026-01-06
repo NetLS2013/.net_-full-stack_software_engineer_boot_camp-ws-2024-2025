@@ -1,10 +1,10 @@
 ﻿namespace OrderLibrary.Item
 {
-    public class TariffItem : ItemBase
+    public sealed class TariffItem : ItemBase
     {
         public int SpeedMbps { get; private set; }
         public int TrafficLimitGb { get; private set; }
-        protected int MinContractTermMonths { get; private set; }
+        internal int MinContractTermMonths { get; set; }
 
 
         public TariffItem(string name, decimal price, decimal discount, int speed, int limit, int minTermMonth =12)
