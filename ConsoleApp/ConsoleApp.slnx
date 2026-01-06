@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ConsoleApp/ConsoleApp.csproj" />
+  <Project Path="OrderLibrary/OrderLibrary.csproj" Id="4b9026e4-9be2-48cc-aa05-909583bdea9d" />
+  <Project Path="UserLibrary/UserLibrary.csproj" Id="12f8f6d8-72a7-4323-8e45-69d721060ac2" />
+</Solution>
