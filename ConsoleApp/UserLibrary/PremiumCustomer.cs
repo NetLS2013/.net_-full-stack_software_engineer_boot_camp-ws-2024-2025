@@ -4,7 +4,7 @@
     {
         public decimal PersonalDiscountRate { get; set; }
 
-        public PremiumCustomer(string name, string email, string servicePlan, string buildingType) 
+        public PremiumCustomer(string name, string email, ServicePlan servicePlan, BuildingType buildingType) 
             : base(name, email, servicePlan, buildingType)
         {
         }

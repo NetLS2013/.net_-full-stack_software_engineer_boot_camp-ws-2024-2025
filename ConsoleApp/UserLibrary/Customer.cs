@@ -3,12 +3,12 @@
     public class Customer : User
     {
         public Guid ContractNumber { get; }
-        public string ServicePlan { get; private set; }
-        public string BuildingType { get; private set; }
+        public ServicePlan ServicePlan { get; private set; }
+        public BuildingType BuildingType { get; private set; }
         public Address DefaultShippingAddress { get; set; }
 
 
-        public Customer(string name, string email, string servicePlan, string buildingType): base(name, email)
+        public Customer(string name, string email, ServicePlan servicePlan, BuildingType buildingType): base(name, email)
         {
             ContractNumber = Guid.NewGuid();
             ServicePlan = servicePlan;

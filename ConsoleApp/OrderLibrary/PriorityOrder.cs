@@ -2,13 +2,13 @@
 {
     public sealed class PriorityOrder : OrderBase
     {
-        public string PriorityLevel { get; private set; }
+        public PriorityLevel Priority { get; private set; }
 
-        public PriorityOrder(string priorityLevel, decimal discount): base(discount)
+        public PriorityOrder(PriorityLevel priority, decimal discount): base(discount)
         {
-            PriorityLevel = priorityLevel;
+            Priority = priority;
 
-            if (PriorityLevel == "High")
+            if (Priority == PriorityLevel.High)
             {
                 DiscountRate = 0;
             }
