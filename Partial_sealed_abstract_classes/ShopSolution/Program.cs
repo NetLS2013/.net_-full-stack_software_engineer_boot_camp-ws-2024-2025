@@ -41,6 +41,9 @@ namespace ShopSolution
             order.AddItem(generic);
             order.AddItem(milk);
             order.AddItem(cleaning);
+            order.SetStatus(OrderStatus.Created);
+            order.DeliveryType = DeliveryType.Courier;
+
 
             void PrintOrderSummary(IOrderTotalCalculator totalCalc, IShippingCalculator shippingCalc)
             {
@@ -59,6 +62,8 @@ namespace ShopSolution
             Console.WriteLine("User: " + user);
             Console.WriteLine("Generic size: " + generic.Size + " | Volume: " + generic.Size.VolumeCm3 + " cm3");
             Console.WriteLine("Total user discount: " + user.GetTotalDiscount() + "%");
+            Console.WriteLine("Status: " + order.Status);
+            Console.WriteLine("DeliveryType: " + order.DeliveryType);
             PrintOrderSummary(totalCalculator, shippingCalculator);
 
             Console.ReadLine();

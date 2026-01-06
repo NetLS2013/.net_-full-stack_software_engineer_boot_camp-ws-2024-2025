@@ -18,10 +18,23 @@ namespace Shop.Orders
 
         protected decimal ManagerDiscountPercent { get; set; }
         protected internal decimal SeasonalDiscountPercent { get; set; }
+        public OrderStatus Status { get; protected set; }
+        public DeliveryType DeliveryType { get; set; }
+
 
         public void AddItem(ItemBase item)
         {
             _items.Add(item);
+        }
+
+        protected OrderBase()
+        {
+            Status = OrderStatus.Draft;
+            DeliveryType = DeliveryType.Courier;
+        }
+        public void SetStatus(OrderStatus status)
+        {
+            Status = status;
         }
 
         public abstract decimal CalculateTotal();

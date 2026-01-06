@@ -35,11 +35,28 @@ namespace Shop.Orders
 
         public override decimal CalculateDeliveryCost()
         {
-            decimal delivery = 50m;
+            decimal delivery;
+
+            switch (DeliveryType)
+            {
+                case DeliveryType.Pickup:
+                    delivery = 0m;
+                    break;
+
+                case DeliveryType.Post:
+                    delivery = 30m;
+                    break;
+
+                case DeliveryType.Courier:
+                default:
+                    delivery = 50m;
+                    break;
+            }
 
             foreach (var item in Items)
             {
                 delivery += 10m;
+
                 Item generic = item as Item;
                 if (generic != null)
                 {
@@ -50,5 +67,6 @@ namespace Shop.Orders
 
             return delivery;
         }
+
     }
 }
