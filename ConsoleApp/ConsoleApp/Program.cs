@@ -1,32 +1,37 @@
 ﻿using UserLibrary;
 using OrderLibrary;
 using OrderLibrary.Item;
+using ConsoleApp.Service;
+using ConsoleApp.Repository;
+
 
 class Program
 {
+
+    private static decimal shopDiscount = 0.05m;
+
+    private static IItemService itemService = new ItemService(new MemoryItemRepository());
+    private static ICustomerService customerService = new CustomerService(new MemoryCustomerRepository());
+    //private static IOrderService orderService = new OrderService(new MemoryOrderRepository());
+    private static IOrderService orderService = new LoggingOrderService(new MemoryOrderRepository());
+
+
     public static void Main(string[] args)
     {
-        PremiumCustomer customer = new PremiumCustomer("John Doe", "john.doe@gmail.com", ServicePlan.Standard, BuildingType.PrivateHouse);
-        customer.DefaultShippingAddress = new Address("Lviv", "Konovaltsia Street", "10B", 2);
-        customer.PersonalDiscountRate = 0.05m;
+        customerService.CreateCustomer(
+            "Jake Doe", "jake.doe@gmail.com", ServicePlan.Business, BuildingType.OfficeCenter, 
+            new Address("Lviv", "Konovaltsia Street", "25B", 4)
+        );
+
+
+        Customer customer = customerService.GetCustomer("jake.doe@gmail.com");
         PrintCustomerInfo(customer);
 
-        TariffItem basicTarif = new TariffItem("Basic Plan", 300, customer.PersonalDiscountRate, 100, 10, 6);
-        PrintItem(basicTarif);
+        List<ItemBase> items = itemService.GetAllItems();
+        items.ForEach(PrintItemInfo);
 
-        ServiceItem installationService = new ServiceItem("Installation Service", 900, customer.PersonalDiscountRate, 3, true);
-        PrintItem(installationService);
 
-        HardwareItem router = new HardwareItem(
-            "Router v1", 1900, customer.PersonalDiscountRate, "56524545", 1.8m, new ItemSize(20, 15, 5)
-            );
-        PrintItem(router);
-
-        OrderBase order = new PriorityOrder(PriorityLevel.Low, 0.05m);
-        order.Items.Add(basicTarif);
-        order.Items.Add(router);
-        order.Items.Add(installationService);
-
+        OrderBase order = orderService.CreateOrder([items[0], items[1], items[2]], shopDiscount, PriorityLevel.Low, customer);
         PrintFinancialInfo(order);
         PrintDeliveryInfo(order, customer.DefaultShippingAddress);
 
@@ -38,7 +43,7 @@ class Program
         Console.WriteLine($"Customer: {customer.FullName}; Service Plan: {customer.ServicePlan}; Building: {customer.BuildingType}");
     }
 
-    static void PrintItem(ItemBase item)
+    static void PrintItemInfo(ItemBase item)
     {
         Console.WriteLine($"Item: {item.Name}; Price: {item.Price}");
     }
