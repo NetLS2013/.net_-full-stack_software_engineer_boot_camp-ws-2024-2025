@@ -5,7 +5,8 @@ namespace OrderLibrary
     public abstract partial class OrderBase
     {
         public Guid Id { get; }
-        public DateTime Date { get; }
+        public DateTime CreationDate { get; }
+        public DateTime? DeliveryDate { get; private set; }
         public List<ItemBase> Items { get; private set; } = new List<ItemBase>();
         protected decimal DiscountRate { get; set; }
 
@@ -13,7 +14,7 @@ namespace OrderLibrary
         public OrderBase(decimal discount)
         {
             Id = Guid.NewGuid();
-            Date = DateTime.UtcNow;
+            CreationDate = DateTime.UtcNow;
             DiscountRate = discount;
         }
     }

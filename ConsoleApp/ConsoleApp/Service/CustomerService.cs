@@ -15,7 +15,7 @@ namespace ConsoleApp.Service
             _repository = repository;
         }
 
-        public Customer GetCustomer(string email)
+        public Customer? GetCustomer(string email)
         {
             return _repository.GetByEmail(email);
         }

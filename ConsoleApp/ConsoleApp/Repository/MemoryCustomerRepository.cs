@@ -14,7 +14,7 @@ namespace ConsoleApp.Repository
             _data.Add(customer);
         }
 
-        public Customer GetByEmail(string email)
+        public Customer? GetByEmail(string email)
         {
             foreach (var customer in _data)
             {
@@ -25,7 +25,7 @@ namespace ConsoleApp.Repository
 
         public override void Save(Customer entity)
         {
-            Customer existing = GetByEmail(entity.Email);
+            Customer? existing = GetByEmail(entity.Email);
 
             if (existing != null)
             {

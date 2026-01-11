@@ -55,5 +55,17 @@ namespace OrderLibrary
 
             return cost;
         }
+
+        public string GetDeliveryDateStatus()
+        {
+            if (!DeliveryDate.HasValue)
+            {
+                return "Pending scheduling (Date not set)";
+            }
+            else
+            {
+                return $"Scheduled for: {DeliveryDate.Value.ToShortDateString()}";
+            }
+        }
     }
 }

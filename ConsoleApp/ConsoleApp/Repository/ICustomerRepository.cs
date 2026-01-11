@@ -4,7 +4,7 @@ namespace ConsoleApp.Repository
 {
     public interface ICustomerRepository
     {
-        Customer GetByEmail(string email);
+        Customer? GetByEmail(string email);
         void Save(Customer customer);
 
     }

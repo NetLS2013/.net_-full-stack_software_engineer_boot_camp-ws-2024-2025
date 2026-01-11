@@ -24,8 +24,8 @@ class Program
         );
 
 
-        Customer customer = customerService.GetCustomer("jake.doe@gmail.com");
-        PrintCustomerInfo(customer);
+        Customer? customer = customerService.GetCustomer("jake.doe@gmail.com");
+        if (customer != null) PrintCustomerInfo(customer);
 
         List<ItemBase> items = itemService.GetAllItems();
         items.ForEach(PrintItemInfo);
@@ -59,7 +59,8 @@ class Program
     static void PrintDeliveryInfo(IDeliveryCalculator calc, Address address)
     {
         Console.WriteLine($"------------------------------------------------");
-        Console.WriteLine($"Delivery to {address.City}");
+        Console.WriteLine($"Delivery to:\t{address.City}");
         Console.WriteLine($"Shipping Cost:\t{calc.CalculateDeliveryCost(address.City):N2}");
+        Console.WriteLine($"Delivery Date:\t{calc.GetDeliveryDateStatus()}");
     }
 }

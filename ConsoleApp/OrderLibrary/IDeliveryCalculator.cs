@@ -3,5 +3,7 @@
     public interface IDeliveryCalculator
     {
         decimal CalculateDeliveryCost(string destinationCity);
+
+        string GetDeliveryDateStatus();
     }
 }

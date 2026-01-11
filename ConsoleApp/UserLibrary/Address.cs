@@ -19,5 +19,18 @@ namespace UserLibrary
             ApartmentNumber = apt;
         }
 
+        public override string ToString()
+        {
+
+            if (ApartmentNumber.HasValue)
+            {
+                return $"{City}, {Street} {HouseNumber}, Apt {ApartmentNumber.Value}";
+            }
+            else
+            {
+                return $"{City}, {Street} {HouseNumber} (Private House)";
+            }
+        }
+
     }
 }
