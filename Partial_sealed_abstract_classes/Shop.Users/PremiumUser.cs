@@ -13,6 +13,7 @@ namespace Shop.Orders
         public PremiumUser()
         {
             PremiumExtraDiscountPercent = 5m;
+            Balance += 100m;
         }
 
         public void SetPremiumExtraDiscount(decimal percent)
@@ -26,5 +27,13 @@ namespace Shop.Orders
         {
             return PersonalDiscountPercent + PremiumExtraDiscountPercent;
         }
+
+        public override string AddBalance(decimal amount)
+        {
+            amount *= 1.1m;
+            Balance += amount;
+            return "Added " + amount + " to balance with premium bonus.";
+        }
+
     }
 }

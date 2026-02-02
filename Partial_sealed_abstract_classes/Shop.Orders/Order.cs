@@ -18,15 +18,18 @@ namespace Shop.Orders
             SeasonalDiscountPercent = percent;
         }
 
-        public override decimal CalculateTotal()
+        public override decimal CalculatePrice()
         {
             decimal sum = 0m;
-
             foreach (var item in Items)
             {
                 sum += item.GetNetPrice();
             }
+            return sum;
+        }
 
+        public override decimal CalculateTotal(decimal sum)
+        {
             sum = sum - (sum * SeasonalDiscountPercent / 100m);
             sum = sum - (sum * ManagerDiscountPercent / 100m);
 
@@ -66,6 +69,18 @@ namespace Shop.Orders
             }
 
             return delivery;
+        }
+
+        public override bool DeliverOrder()
+        {
+            if (Status != OrderStatus.Paid)
+            {
+                Console.WriteLine("Order must be paid before delivery.");
+                return false;
+            }
+            decimal deliveryCost = CalculateDeliveryCost();
+            SetStatus(OrderStatus.Shipped);
+            return true;
         }
 
     }
