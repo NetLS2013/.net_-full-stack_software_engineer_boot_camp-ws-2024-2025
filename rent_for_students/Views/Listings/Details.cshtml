@@ -1,0 +1,33 @@
+﻿@using rent_for_students.ViewModels
+@model ListingDetailsViewModel
+@{
+    ViewData["Title"] = "Деталі";
+    var l = Model.Listing;
+}
+
+<h2>Деталі оголошення</h2>
+
+<div class="card">
+    <div><strong>@l.Title</strong></div>
+    <div class="muted">@l.City @if(!string.IsNullOrWhiteSpace(l.District)){
+    <text>• @l.District</text>
+        }
+</div>
+    <div style="margin-top:8px;">Ціна: <strong>@l.PricePerMonth</strong> / міс</div>
+    <div>Тип: @l.RoomType</div>
+    <div>Площа: @l.AreaSqm м²</div>
+    <div class="muted" style="margin-top:8px;">Створено: @l.CreatedAtUtc.ToString("u")</div>
+
+    @if (!string.IsNullOrWhiteSpace(l.Description))
+    {
+        <div style="margin-top:12px;">
+            <strong>Опис</strong>
+            <div>@l.Description</div>
+        </div>
+    }
+</div>
+
+<p>
+    <a class="btn" asp-action="Index">Назад</a>
+    <a class="btn" asp-action="Create">Створити нове</a>
+</p>

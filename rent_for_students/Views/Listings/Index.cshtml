@@ -1,0 +1,71 @@
+﻿@using rent_for_students.ViewModels
+@model ListingListViewModel
+@{
+    ViewData["Title"] = "Оголошення";
+}
+
+<h2>Оголошення</h2>
+
+<form method="get" class="card">
+    <div class="row">
+        <div>
+            <label>Місто</label>
+            <input asp-for="Filter.City" />
+        </div>
+
+        <div>
+            <label>Тип</label>
+            <select asp-for="Filter.RoomType" asp-items="Html.GetEnumSelectList<RoomType>()">
+                <option value="">(будь-який)</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Ціна від</label>
+            <input asp-for="Filter.MinPricePerMonth" type="number" step="0.01" />
+        </div>
+
+        <div>
+            <label>Ціна до</label>
+            <input asp-for="Filter.MaxPricePerMonth" type="number" step="0.01" />
+        </div>
+
+        <div>
+            <label>Тільки активні</label>
+            <input asp-for="Filter.OnlyActive" type="checkbox" />
+        </div>
+
+        <div>
+            <label>Розмір сторінки</label>
+            <input asp-for="Filter.PageSize" type="number" />
+        </div>
+    </div>
+
+    <div style="margin-top:12px;">
+        <button class="btn btn-primary" type="submit">Пошук</button>
+        <a class="btn" asp-controller="Listings" asp-action="Index">Скинути</a>
+    </div>
+</form>
+
+@if (Model.Listings.Count == 0)
+{
+    <p class="muted">Нічого не знайдено.</p>
+}
+else
+{
+    @foreach (var item in Model.Listings)
+    {
+        <div class="card">
+            <div><strong>@item.Title</strong></div>
+            <div class="muted">@item.City @if(!string.IsNullOrWhiteSpace(item.District)){
+            <text>• @item.District</text>
+        }
+    </div>
+        <div>Ціна: <strong>@item.PricePerMonth</strong> / міс</div>
+        <div>Тип: @item.RoomType • Площа: @item.AreaSqm м²</div>
+        <div style="margin-top:8px;">
+            <a class="btn" asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+        </div>
+    </div>
+}
+}

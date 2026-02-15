@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RentService</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .nav a {
+            margin-right: 10px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .muted {
+            color: #666;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+
+        input, select, textarea {
+            width: 360px;
+            max-width: 100%;
+            padding: 6px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background: #111;
+            color: #fff;
+        }
+
+        .row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <strong>RentService</strong>
+        <nav class="nav">
+            <a asp-controller="Listings" asp-action="Index">Оголошення</a>
+            <a asp-controller="Listings" asp-action="Create">Створити</a>
+        </nav>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+</body>
+</html>
