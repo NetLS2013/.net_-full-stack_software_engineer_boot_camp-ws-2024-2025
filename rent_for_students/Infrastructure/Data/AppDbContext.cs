@@ -6,6 +6,7 @@ namespace rent_for_students.Infrastructure.Data
     public class AppDbContext : DbContext
     {
         public DbSet<HousingListing> HousingListings => Set<HousingListing>();
+        public DbSet<RentalApplication> RentalApplications => Set<RentalApplication>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -37,6 +38,38 @@ namespace rent_for_students.Infrastructure.Data
                 entity.HasIndex(x => x.City);
                 entity.HasIndex(x => x.PricePerMonth);
                 entity.HasIndex(x => x.IsActive);
+            });
+
+            modelBuilder.Entity<RentalApplication>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.ApplicantName)
+                      .HasMaxLength(120)
+                      .IsRequired();
+
+                entity.Property(x => x.Phone)
+                      .HasMaxLength(40)
+                      .IsRequired();
+
+                entity.Property(x => x.Email)
+                      .HasMaxLength(254)
+                      .IsRequired();
+
+                entity.Property(x => x.Message)
+                      .HasMaxLength(2000);
+
+                entity.Property(x => x.Status)
+                      .HasConversion<int>()
+                      .IsRequired();
+
+                entity.HasOne<HousingListing>()
+                      .WithMany()
+                      .HasForeignKey(x => x.ListingId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => x.ListingId);
+                entity.HasIndex(x => x.CreatedAtUtc);
             });
         }
     }

@@ -55,6 +55,12 @@ namespace rent_for_students.Infrastructure.Repositories
         public Task AddAsync(HousingListing listing, CancellationToken ct = default)
             => _db.HousingListings.AddAsync(listing, ct).AsTask();
 
+        public Task UpdateAsync(HousingListing listing, CancellationToken ct = default)
+        {
+            _db.HousingListings.Update(listing);
+            return Task.CompletedTask;
+        }
+
         public Task SaveChangesAsync(CancellationToken ct = default)
             => _db.SaveChangesAsync(ct);
     }

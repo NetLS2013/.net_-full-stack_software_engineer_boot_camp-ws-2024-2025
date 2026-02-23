@@ -6,6 +6,11 @@
 
 <h2>Оголошення</h2>
 
+<p>
+    <a class="btn btn-primary" asp-action="Create">Створити активне</a>
+    <a class="btn" asp-action="CreateDraft">Створити чернетку</a>
+</p>
+
 <form method="get" class="card">
     <div class="row">
         <div>
@@ -63,8 +68,10 @@ else
     </div>
         <div>Ціна: <strong>@item.PricePerMonth</strong> / міс</div>
         <div>Тип: @item.RoomType • Площа: @item.AreaSqm м²</div>
+        <div>Статус: @(item.IsActive ? "Published" : "Draft")</div>
         <div style="margin-top:8px;">
             <a class="btn" asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+            <a class="btn" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
         </div>
     </div>
 }

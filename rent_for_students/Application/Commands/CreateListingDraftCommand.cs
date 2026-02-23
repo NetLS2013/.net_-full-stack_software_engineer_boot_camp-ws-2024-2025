@@ -4,18 +4,18 @@ using rent_for_students.Domain.Entities;
 
 namespace rent_for_students.Application.Commands
 {
-    public sealed class CreateListingCommand : ICommand<Guid>
+    public sealed class CreateListingDraftCommand : ICommand<Guid>
     {
         private readonly IListingUseCaseMediator _receiver;
-        private readonly HousingListing _listing;
+        private readonly HousingListing _draft;
 
-        public CreateListingCommand(IListingUseCaseMediator receiver, HousingListing listing)
+        public CreateListingDraftCommand(IListingUseCaseMediator receiver, HousingListing draft)
         {
             _receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
-            _listing = listing ?? throw new ArgumentNullException(nameof(listing));
+            _draft = draft ?? throw new ArgumentNullException(nameof(draft));
         }
 
         public Task<Result<Guid>> ExecuteAsync(CancellationToken ct = default)
-            => _receiver.CreateAsync(_listing, ct);
+            => _receiver.CreateDraftAsync(_draft, ct);
     }
 }

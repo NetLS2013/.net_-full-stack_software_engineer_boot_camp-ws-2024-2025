@@ -364,3 +364,10 @@ FodyWeavers.xsd
 
 # Ignore .zip files
 *.zip
+
+# rent_for_students project
+rent_for_students/docs/
+rent_for_students/rentservice.db*
+rent_for_students/rentservice.db
+rent_for_students/rentservice.db-shm
+rent_for_students/rentservice.db-wal

@@ -33,5 +33,19 @@ namespace rent_for_students.Mapping
                 AreaSqm = vm.AreaSqm
             };
         }
+
+        public static ListingCreateViewModel ToCreateViewModel(HousingListing entity)
+        {
+            return new ListingCreateViewModel
+            {
+                Title = entity.Title,
+                Description = entity.Description,
+                City = entity.City,
+                District = entity.District,
+                PricePerMonth = entity.PricePerMonth,
+                RoomType = entity.RoomType,
+                AreaSqm = entity.AreaSqm
+            };
+        }
     }
 }
