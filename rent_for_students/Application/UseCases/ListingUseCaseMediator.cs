@@ -6,15 +6,15 @@ using rent_for_students.Domain.Services;
 
 namespace rent_for_students.Application.UseCases
 {
-    public class ListingUseCaseMediator : IListingUseCaseMediator
+    // PROMPT v1.0: Template Method integration - ListingUseCaseMediator
+    public class ListingUseCaseMediator : BaseUseCaseMediator, IListingUseCaseMediator
     {
         private readonly HousingService _housingService;
-        private readonly INotificationService _notificationService;
 
         public ListingUseCaseMediator(HousingService housingService, INotificationService notificationService)
+            : base(notificationService)
         {
-            _housingService = housingService;
-            _notificationService = notificationService;
+            _housingService = housingService ?? throw new ArgumentNullException(nameof(housingService));
         }
 
         public async Task<Result<IReadOnlyList<HousingListing>>> SearchListingsAsync(ListingSearchCriteria criteria, CancellationToken ct = default)
@@ -44,42 +44,48 @@ namespace rent_for_students.Application.UseCases
             return Result<HousingListing>.Success(listing);
         }
 
+        // PROMPT v1.0: Template Method refactoring - CreateAsync operation
         public async Task<Result<Guid>> CreateAsync(HousingListing listing, CancellationToken ct = default)
         {
-            if (listing is null)
-            {
-                return Result<Guid>.Failure(ErrorCodes.ValidationError, "Listing is required.");
-            }
-
-            var validationMessage = ValidateListing(listing);
-            if (validationMessage is not null)
-            {
-                return Result<Guid>.Failure(ErrorCodes.ValidationError, validationMessage);
-            }
-
-            var id = await _housingService.CreateListingAsync(listing, ct);
-            await _notificationService.NotifyAsync($"Listing created: {id}", ct);
-
-            return Result<Guid>.Success(id);
+            return await ExecuteOperationAsync(
+                input: listing,
+                validateAsync: async (input) =>
+                {
+                    if (input is null)
+                        return (false, "Listing is required.", null);
+                    
+                    var validationMessage = ValidateListing(input);
+                    if (validationMessage is not null)
+                        return (false, validationMessage, null);
+                    
+                    return (true, null, null);
+                },
+                executeAsync: async (input) => await _housingService.CreateListingAsync(input, ct),
+                notificationMessage: $"Listing created: {listing.Id}",
+                ct: ct
+            );
         }
 
+        // PROMPT v1.0: Template Method refactoring - CreateDraftAsync operation
         public async Task<Result<Guid>> CreateDraftAsync(HousingListing draft, CancellationToken ct = default)
         {
-            if (draft is null)
-            {
-                return Result<Guid>.Failure(ErrorCodes.ValidationError, "Draft is required.");
-            }
-
-            var validationMessage = ValidateListing(draft);
-            if (validationMessage is not null)
-            {
-                return Result<Guid>.Failure(ErrorCodes.ValidationError, validationMessage);
-            }
-
-            var id = await _housingService.CreateListingDraftAsync(draft, ct);
-            await _notificationService.NotifyAsync($"Draft created: {id}", ct);
-
-            return Result<Guid>.Success(id);
+            return await ExecuteOperationAsync(
+                input: draft,
+                validateAsync: async (input) =>
+                {
+                    if (input is null)
+                        return (false, "Draft is required.", null);
+                    
+                    var validationMessage = ValidateListing(input);
+                    if (validationMessage is not null)
+                        return (false, validationMessage, null);
+                    
+                    return (true, null, null);
+                },
+                executeAsync: async (input) => await _housingService.CreateListingDraftAsync(input, ct),
+                notificationMessage: $"Draft created: {draft.Id}",
+                ct: ct
+            );
         }
 
         public async Task<Result<bool>> UpdateDraftAsync(Guid id, HousingListing draft, CancellationToken ct = default)
