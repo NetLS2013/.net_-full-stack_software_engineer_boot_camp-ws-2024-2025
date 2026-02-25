@@ -1,4 +1,4 @@
-@startuml StudentRent-TemplateMethod-ClassDiagram-v1_0
+﻿@startuml StudentRent-TemplateMethod-ClassDiagram-v1_0
 ' Template Method Pattern Integration - Class Diagram
 ' Shows BaseUseCaseMediator with Template Method pattern and concrete Mediator implementations
 
@@ -36,6 +36,15 @@ package "Application.Common" {
         + {static} NotFoundOrNotDraft: string
         + {static} Forbidden: string
     }
+
+    class OperationValidationResult <<concrete>> {
+        + IsValid: bool
+        + ErrorCode: string?
+        + ErrorMessage: string?
+        --
+        + {static} Valid(): OperationValidationResult
+        + {static} Invalid(message: string, errorCode?: string): OperationValidationResult
+    }
 }
 
 package "Application.Notifications" {
@@ -53,15 +62,10 @@ package "Application.UseCases" {
         --
         # BaseUseCaseMediator(notificationService: INotificationService)
         --
-        # ExecuteOperationAsync<TInput, TOutput>(
-        #     input: TInput,
-        #     validateAsync: Func<TInput, Task<string?>>,
-        #     executeAsync: Func<TInput, Task<TOutput>>,
-        #     preExecuteAsync?: Func<TInput, Task>,
-        #     postExecuteAsync?: Func<TInput, TOutput, Task>,
-        #     notificationMessage?: string,
-        #     ct: CancellationToken
-        # ): Task<Result<TOutput>>
+        # ValidationFailure<T>(validation: OperationValidationResult): Result<T>
+        # Success<T>(value: T, message?: string): Result<T>
+        # NotifyIfNeededAsync(notificationMessage?: string, ct: CancellationToken): Task
+        # Valid(): OperationValidationResult
     }
     
     ' ============================================
@@ -83,22 +87,9 @@ package "Application.UseCases" {
         +     draft: HousingListing,
         +     ct: CancellationToken
         + ): Task<Result<Guid>>
-        + UpdateDraftAsync(
-        +     id: Guid,
-        +     draft: HousingListing,
-        +     ct: CancellationToken
-        + ): Task<Result<bool>>
-        + PublishAsync(
-        +     id: Guid,
-        +     ct: CancellationToken
-        + ): Task<Result<bool>>
-        + UpdateAsync(
-        +     id: Guid,
-        +     listing: HousingListing,
-        +     ct: CancellationToken
-        + ): Task<Result<bool>>
         --
         - ValidateListing(listing: HousingListing): string?
+        - ValidateListingPayload(listing: HousingListing?, missingMessage: string): OperationValidationResult
     }
     
     ' ============================================
@@ -121,6 +112,7 @@ package "Application.UseCases" {
         + ): Task<Result<Guid>>
         --
         - ValidateApplicant(applicant: RentalApplication): string?
+        - ValidateApplyAsync(listingId: Guid, applicant: RentalApplication?, ct: CancellationToken): Task<OperationValidationResult>
     }
 }
 
@@ -142,20 +134,6 @@ package "Domain.Services" {
         +     draft: HousingListing,
         +     ct: CancellationToken
         + ): Task<Guid>
-        + UpdateListingDraftAsync(
-        +     id: Guid,
-        +     draft: HousingListing,
-        +     ct: CancellationToken
-        + ): Task<bool>
-        + PublishListingAsync(
-        +     id: Guid,
-        +     ct: CancellationToken
-        + ): Task<bool>
-        + UpdateListingAsync(
-        +     id: Guid,
-        +     listing: HousingListing,
-        +     ct: CancellationToken
-        + ): Task<bool>
     }
 }
 
@@ -219,6 +197,7 @@ ApplicationUseCaseMediator --> IRentalApplicationRepository : використо
 HousingService --> IHousingRepository : використовує
 
 ' Common
+BaseUseCaseMediator --> OperationValidationResult : працює з
 BaseUseCaseMediator --> Result : повертає
 BaseUseCaseMediator --> ErrorCodes : використовує
 ListingUseCaseMediator --> HousingListing : працює з
@@ -228,17 +207,22 @@ ApplicationUseCaseMediator --> RentalApplication : працює з
 note right of BaseUseCaseMediator
   **TEMPLATE METHOD PATTERN**
   
-  ExecuteOperationAsync<TInput, TOutput>()
-  визначає структуру операції:
-  
-  1. Validate() - делегат
-  2. Execute() - делегат
-  3. Notify() - опціонально
-  4. Return Result<TOutput>
-  
-  Mediator-и передають функції
-  валідації та виконання через
-  делегати (Func<>)
+  v1.1 (pragmatic template-flow)
+
+  BaseUseCaseMediator contains helpers:
+  - ValidationFailure()
+  - Success()
+  - NotifyIfNeededAsync()
+
+  Concrete mediator methods implement flow:
+  1. Validate
+  2. Execute
+  3. Notify
+  4. Return Result
+
+  Validation is unified through
+  OperationValidationResult
 end note
 
 @enduml
+

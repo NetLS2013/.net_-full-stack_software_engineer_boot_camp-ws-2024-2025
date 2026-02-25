@@ -9,10 +9,8 @@ namespace rent_for_students.Application.UseCases
     /// Base class that implements the Template Method pattern for use case operations.
     /// Defines the standard flow: Validate → Execute → Notify → Return Result
     /// 
-    /// Concrete mediators inherit from this class and provide:
-    /// - validateAsync: Func to validate input and return error message or code
-    /// - executeAsync: Func to execute the operation
-    /// - notificationMessage: Optional message for notification
+    /// Concrete mediators inherit from this class and build explicit operation flows
+    /// using the shared validation/result/notification helpers below.
     /// </summary>
     public abstract class BaseUseCaseMediator
     {
@@ -24,83 +22,45 @@ namespace rent_for_students.Application.UseCases
         }
 
         /// <summary>
-        /// PROMPT v1.0: Template Method pattern - ExecuteOperationAsync
-        /// 
-        /// Defines the standard operation flow:
-        /// 1. Validate (using provided delegate)
-        /// 2. Execute (using provided delegate)
-        /// 3. Notify (optional, if notificationMessage is provided)
-        /// 4. Return Result
-        /// 
-        /// This method eliminates code duplication across all CRUD operations.
-        /// Each operation only needs to provide custom validation and execution logic via delegates.
+        /// PROMPT v1.1: Pragmatic template-flow helpers - validation failure handling
         /// </summary>
-        protected async Task<Result<TOutput>> ExecuteOperationAsync<TInput, TOutput>(
-            TInput input,
-            Func<TInput, Task<(bool IsValid, string? ErrorMessage)>> validateAsync,
-            Func<TInput, Task<TOutput>> executeAsync,
-            string? notificationMessage = null,
-            CancellationToken ct = default)
+        protected Result<T> ValidationFailure<T>(OperationValidationResult validation)
         {
-            if (validateAsync is null)
-                throw new ArgumentNullException(nameof(validateAsync));
-            if (executeAsync is null)
-                throw new ArgumentNullException(nameof(executeAsync));
-
-            // Phase 1: Validate
-            var (isValid, errorMessage) = await validateAsync(input);
-            if (!isValid && errorMessage is not null)
+            if (validation.IsValid)
             {
-                return Result<TOutput>.Failure(ErrorCodes.ValidationError, errorMessage);
+                throw new ArgumentException("Validation result must be invalid.", nameof(validation));
             }
 
-            // Phase 2: Execute
-            var result = await executeAsync(input);
+            string errorCode = string.IsNullOrWhiteSpace(validation.ErrorCode)
+                ? ErrorCodes.ValidationError
+                : validation.ErrorCode;
+            string errorMessage = string.IsNullOrWhiteSpace(validation.ErrorMessage)
+                ? "Validation failed."
+                : validation.ErrorMessage;
 
-            // Phase 3: Notify (optional)
-            if (!string.IsNullOrEmpty(notificationMessage))
-            {
-                await _notificationService.NotifyAsync(notificationMessage, ct);
-            }
-
-            // Phase 4: Return
-            return Result<TOutput>.Success(result);
+            return Result<T>.Failure(errorCode, errorMessage);
         }
 
         /// <summary>
-        /// Overload for operations that need custom error codes
+        /// PROMPT v1.1: Pragmatic template-flow helpers - success result factory
         /// </summary>
-        protected async Task<Result<TOutput>> ExecuteOperationAsync<TInput, TOutput>(
-            TInput input,
-            Func<TInput, Task<(bool IsValid, string? ErrorMessage, string? ErrorCode)>> validateAsync,
-            Func<TInput, Task<TOutput>> executeAsync,
-            string? notificationMessage = null,
-            CancellationToken ct = default)
+        protected Result<T> Success<T>(T value, string? message = null)
+            => Result<T>.Success(value, message);
+
+        /// <summary>
+        /// PROMPT v1.1: Pragmatic template-flow helpers - optional notifications
+        /// </summary>
+        protected async Task NotifyIfNeededAsync(string? notificationMessage, CancellationToken ct = default)
         {
-            if (validateAsync is null)
-                throw new ArgumentNullException(nameof(validateAsync));
-            if (executeAsync is null)
-                throw new ArgumentNullException(nameof(executeAsync));
-
-            // Phase 1: Validate
-            var (isValid, errorMessage, errorCode) = await validateAsync(input);
-            if (!isValid && errorMessage is not null)
+            if (string.IsNullOrWhiteSpace(notificationMessage))
             {
-                var code = errorCode ?? ErrorCodes.ValidationError;
-                return Result<TOutput>.Failure(code, errorMessage);
+                return;
             }
 
-            // Phase 2: Execute
-            var result = await executeAsync(input);
-
-            // Phase 3: Notify (optional)
-            if (!string.IsNullOrEmpty(notificationMessage))
-            {
-                await _notificationService.NotifyAsync(notificationMessage, ct);
-            }
-
-            // Phase 4: Return
-            return Result<TOutput>.Success(result);
+            await _notificationService.NotifyAsync(notificationMessage, ct);
         }
+
+        protected static OperationValidationResult Valid()
+            => OperationValidationResult.Valid();
     }
 }

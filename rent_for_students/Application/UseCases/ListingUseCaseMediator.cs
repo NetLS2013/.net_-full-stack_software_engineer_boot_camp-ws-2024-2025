@@ -47,45 +47,31 @@ namespace rent_for_students.Application.UseCases
         // PROMPT v1.0: Template Method refactoring - CreateAsync operation
         public async Task<Result<Guid>> CreateAsync(HousingListing listing, CancellationToken ct = default)
         {
-            return await ExecuteOperationAsync(
-                input: listing,
-                validateAsync: async (input) =>
-                {
-                    if (input is null)
-                        return (false, "Listing is required.", null);
-                    
-                    var validationMessage = ValidateListing(input);
-                    if (validationMessage is not null)
-                        return (false, validationMessage, null);
-                    
-                    return (true, null, null);
-                },
-                executeAsync: async (input) => await _housingService.CreateListingAsync(input, ct),
-                notificationMessage: $"Listing created: {listing.Id}",
-                ct: ct
-            );
+            OperationValidationResult validation = ValidateListingPayload(listing, "Listing is required.");
+            if (!validation.IsValid)
+            {
+                return ValidationFailure<Guid>(validation);
+            }
+
+            Guid id = await _housingService.CreateListingAsync(listing, ct);
+            await NotifyIfNeededAsync($"Listing created: {id}", ct);
+
+            return Success(id);
         }
 
         // PROMPT v1.0: Template Method refactoring - CreateDraftAsync operation
         public async Task<Result<Guid>> CreateDraftAsync(HousingListing draft, CancellationToken ct = default)
         {
-            return await ExecuteOperationAsync(
-                input: draft,
-                validateAsync: async (input) =>
-                {
-                    if (input is null)
-                        return (false, "Draft is required.", null);
-                    
-                    var validationMessage = ValidateListing(input);
-                    if (validationMessage is not null)
-                        return (false, validationMessage, null);
-                    
-                    return (true, null, null);
-                },
-                executeAsync: async (input) => await _housingService.CreateListingDraftAsync(input, ct),
-                notificationMessage: $"Draft created: {draft.Id}",
-                ct: ct
-            );
+            OperationValidationResult validation = ValidateListingPayload(draft, "Draft is required.");
+            if (!validation.IsValid)
+            {
+                return ValidationFailure<Guid>(validation);
+            }
+
+            Guid id = await _housingService.CreateListingDraftAsync(draft, ct);
+            await NotifyIfNeededAsync($"Draft created: {id}", ct);
+
+            return Success(id);
         }
 
         public async Task<Result<bool>> UpdateDraftAsync(Guid id, HousingListing draft, CancellationToken ct = default)
@@ -174,6 +160,22 @@ namespace rent_for_students.Application.UseCases
             }
 
             return null;
+        }
+
+        private static OperationValidationResult ValidateListingPayload(HousingListing? listing, string missingMessage)
+        {
+            if (listing is null)
+            {
+                return OperationValidationResult.Invalid(missingMessage, ErrorCodes.ValidationError);
+            }
+
+            string? validationMessage = ValidateListing(listing);
+            if (validationMessage is not null)
+            {
+                return OperationValidationResult.Invalid(validationMessage, ErrorCodes.ValidationError);
+            }
+
+            return OperationValidationResult.Valid();
         }
     }
 }
