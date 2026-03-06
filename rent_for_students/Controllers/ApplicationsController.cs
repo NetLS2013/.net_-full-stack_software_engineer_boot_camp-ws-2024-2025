@@ -36,6 +36,7 @@ namespace rent_for_students.Controllers
             }
 
             ViewData["ListingTitle"] = detailsResult.Value.Title;
+            await PopulateProfileViewDataAsync(ct);
             return View(new RentalApplicationCreateViewModel { ListingId = listingId });
         }
 
@@ -71,9 +72,16 @@ namespace rent_for_students.Controllers
         public async Task<IActionResult> Apply(RentalApplicationCreateViewModel model, CancellationToken ct)
         {
             await FillListingTitleAsync(model.ListingId, ct);
+            await PopulateProfileViewDataAsync(ct);
 
             if (!ModelState.IsValid)
             {
+                return View(model);
+            }
+
+            if (model.SaveAsProfile && string.IsNullOrWhiteSpace(model.ProfileName))
+            {
+                ModelState.AddModelError(nameof(model.ProfileName), "Profile name is required when saving profile.");
                 return View(model);
             }
 
@@ -84,6 +92,26 @@ namespace rent_for_students.Controllers
                 Email = model.Email.Trim(),
                 Message = string.IsNullOrWhiteSpace(model.Message) ? null : model.Message.Trim()
             };
+
+            if (model.SaveAsProfile)
+            {
+                var profile = new RentalApplicationProfile
+                {
+                    ProfileName = model.ProfileName!.Trim(),
+                    ApplicantName = applicant.ApplicantName,
+                    Phone = applicant.Phone,
+                    Email = applicant.Email,
+                    Message = applicant.Message
+                };
+
+                var saveProfileCmd = new CreateRentalApplicationProfileCommand(_applicationMediator, profile);
+                var saveProfileResult = await _dispatcher.DispatchAsync(saveProfileCmd, ct);
+                if (!saveProfileResult.IsSuccess)
+                {
+                    ModelState.AddModelError(string.Empty, saveProfileResult.Message ?? "Failed to save profile.");
+                    return View(model);
+                }
+            }
 
             var cmd = new CreateRentalApplicationCommand(_applicationMediator, model.ListingId, applicant);
             var result = await _dispatcher.DispatchAsync(cmd, ct);
@@ -102,6 +130,32 @@ namespace rent_for_students.Controllers
             return RedirectToAction("Details", "Listings", new { id = model.ListingId });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyFromProfile(RentalApplicationFromProfileViewModel model, CancellationToken ct)
+        {
+            if (!ModelState.IsValid || model.ListingId == Guid.Empty || model.ProfileId == Guid.Empty)
+            {
+                return BadRequest();
+            }
+
+            var cmd = new CreateRentalApplicationFromProfileCommand(_applicationMediator, model.ListingId, model.ProfileId);
+            var result = await _dispatcher.DispatchAsync(cmd, ct);
+            if (!result.IsSuccess)
+            {
+                if (result.ErrorCode == ErrorCodes.ListingNotAvailable || result.ErrorCode == ErrorCodes.NotFound)
+                {
+                    return NotFound();
+                }
+
+                TempData["ListingError"] = result.Message ?? "Failed to submit application from profile.";
+                return RedirectToAction(nameof(Apply), new { listingId = model.ListingId });
+            }
+
+            TempData["ListingMessage"] = "Application from saved profile submitted. Status: Approved.";
+            return RedirectToAction("Details", "Listings", new { id = model.ListingId });
+        }
+
         private async Task FillListingTitleAsync(Guid listingId, CancellationToken ct)
         {
             if (listingId == Guid.Empty)
@@ -115,6 +169,15 @@ namespace rent_for_students.Controllers
             {
                 ViewData["ListingTitle"] = detailsResult.Value.Title;
             }
+        }
+
+        private async Task PopulateProfileViewDataAsync(CancellationToken ct)
+        {
+            var cmd = new GetRentalApplicationProfilesCommand(_applicationMediator);
+            var profilesResult = await _dispatcher.DispatchAsync(cmd, ct);
+            ViewData["ApplicationProfiles"] = profilesResult.IsSuccess
+                ? profilesResult.Value ?? Array.Empty<RentalApplicationProfile>()
+                : Array.Empty<RentalApplicationProfile>();
         }
     }
 }

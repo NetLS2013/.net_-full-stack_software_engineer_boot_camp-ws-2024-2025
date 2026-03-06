@@ -7,6 +7,7 @@ namespace rent_for_students.Infrastructure.Data
     {
         public DbSet<HousingListing> HousingListings => Set<HousingListing>();
         public DbSet<RentalApplication> RentalApplications => Set<RentalApplication>();
+        public DbSet<RentalApplicationProfile> RentalApplicationProfiles => Set<RentalApplicationProfile>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -70,6 +71,33 @@ namespace rent_for_students.Infrastructure.Data
 
                 entity.HasIndex(x => x.ListingId);
                 entity.HasIndex(x => x.CreatedAtUtc);
+            });
+
+            modelBuilder.Entity<RentalApplicationProfile>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.ProfileName)
+                      .HasMaxLength(80)
+                      .IsRequired();
+
+                entity.Property(x => x.ApplicantName)
+                      .HasMaxLength(120)
+                      .IsRequired();
+
+                entity.Property(x => x.Phone)
+                      .HasMaxLength(40)
+                      .IsRequired();
+
+                entity.Property(x => x.Email)
+                      .HasMaxLength(254)
+                      .IsRequired();
+
+                entity.Property(x => x.Message)
+                      .HasMaxLength(2000);
+
+                entity.HasIndex(x => x.ProfileName);
+                entity.HasIndex(x => x.UpdatedAtUtc);
             });
         }
     }

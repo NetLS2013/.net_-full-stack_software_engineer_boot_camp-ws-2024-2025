@@ -13,6 +13,7 @@ namespace rent_for_students.Tests
         {
             var housingRepo = new InMemoryHousingRepository();
             var appRepo = new InMemoryRentalApplicationRepository();
+            var profileRepo = new InMemoryRentalApplicationProfileRepository();
             var notifications = new TestNotificationService();
             var housingService = new HousingService(housingRepo);
 
@@ -28,7 +29,7 @@ namespace rent_for_students.Tests
             };
             await housingRepo.AddAsync(listing);
 
-            var sut = new ApplicationUseCaseMediator(housingService, appRepo, notifications);
+            var sut = new ApplicationUseCaseMediator(housingService, appRepo, profileRepo, notifications);
 
             var applicant = new RentalApplication
             {
@@ -54,6 +55,7 @@ namespace rent_for_students.Tests
         {
             var housingRepo = new InMemoryHousingRepository();
             var appRepo = new InMemoryRentalApplicationRepository();
+            var profileRepo = new InMemoryRentalApplicationProfileRepository();
             var notifications = new TestNotificationService();
             var housingService = new HousingService(housingRepo);
 
@@ -69,7 +71,7 @@ namespace rent_for_students.Tests
             };
             await housingRepo.AddAsync(listing);
 
-            var sut = new ApplicationUseCaseMediator(housingService, appRepo, notifications);
+            var sut = new ApplicationUseCaseMediator(housingService, appRepo, profileRepo, notifications);
 
             var applicant = new RentalApplication
             {
@@ -82,6 +84,79 @@ namespace rent_for_students.Tests
 
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorCodes.ListingNotAvailable, result.ErrorCode);
+        }
+
+        [Fact]
+        public async Task ApplyFromProfileAsync_ExistingProfile_CreatesApprovedApplication()
+        {
+            var housingRepo = new InMemoryHousingRepository();
+            var appRepo = new InMemoryRentalApplicationRepository();
+            var profileRepo = new InMemoryRentalApplicationProfileRepository();
+            var notifications = new TestNotificationService();
+            var housingService = new HousingService(housingRepo);
+
+            var listing = new HousingListing
+            {
+                Id = Guid.NewGuid(),
+                Title = "Listing C",
+                City = "Odesa",
+                PricePerMonth = 950,
+                RoomType = RoomType.Studio,
+                AreaSqm = 24,
+                IsActive = true
+            };
+            await housingRepo.AddAsync(listing);
+
+            var profile = new RentalApplicationProfile
+            {
+                Id = Guid.NewGuid(),
+                ProfileName = "Default Student",
+                ApplicantName = "Profile User",
+                Phone = "+380501110000",
+                Email = "profile@example.com",
+                Message = "I can move in next month."
+            };
+            await profileRepo.AddAsync(profile);
+
+            var sut = new ApplicationUseCaseMediator(housingService, appRepo, profileRepo, notifications);
+            var result = await sut.ApplyFromProfileAsync(listing.Id, profile.Id);
+
+            Assert.True(result.IsSuccess);
+            var created = await appRepo.GetByIdAsync(result.Value);
+            Assert.NotNull(created);
+            Assert.Equal(ApplicationStatus.Approved, created!.Status);
+            Assert.Equal(profile.ApplicantName, created.ApplicantName);
+            Assert.Equal(profile.Phone, created.Phone);
+            Assert.Equal(profile.Email, created.Email);
+        }
+
+        [Fact]
+        public async Task CreateProfileAsync_ValidProfile_PersistsProfile()
+        {
+            var housingRepo = new InMemoryHousingRepository();
+            var appRepo = new InMemoryRentalApplicationRepository();
+            var profileRepo = new InMemoryRentalApplicationProfileRepository();
+            var notifications = new TestNotificationService();
+            var housingService = new HousingService(housingRepo);
+            var sut = new ApplicationUseCaseMediator(housingService, appRepo, profileRepo, notifications);
+
+            var profile = new RentalApplicationProfile
+            {
+                ProfileName = "Quick Apply",
+                ApplicantName = "User Name",
+                Phone = "+380501231231",
+                Email = "user@example.com",
+                Message = "Saved profile."
+            };
+
+            var createResult = await sut.CreateProfileAsync(profile);
+
+            Assert.True(createResult.IsSuccess);
+            Assert.NotEqual(Guid.Empty, createResult.Value);
+
+            var listResult = await sut.ListProfilesAsync();
+            Assert.True(listResult.IsSuccess);
+            Assert.Contains(listResult.Value!, x => x.Id == createResult.Value && x.ProfileName == "Quick Apply");
         }
     }
 }

@@ -22,5 +22,11 @@ namespace rent_for_students.ViewModels
 
         [StringLength(2000)]
         public string? Message { get; set; }
+
+        // PROMPT v1.3: Optional profile persistence for Prototype flow.
+        public bool SaveAsProfile { get; set; }
+
+        [StringLength(80, MinimumLength = 2)]
+        public string? ProfileName { get; set; }
     }
 }

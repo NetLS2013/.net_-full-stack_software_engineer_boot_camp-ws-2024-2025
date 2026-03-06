@@ -24,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IHousingRepository, EfHousingRepository>();
 builder.Services.AddScoped<IRentalApplicationRepository, EfRentalApplicationRepository>();
+builder.Services.AddScoped<IRentalApplicationProfileRepository, EfRentalApplicationProfileRepository>();
 builder.Services.AddScoped<HousingService>();
 
 builder.Services.AddScoped<INotificationService, LogNotificationService>();

@@ -6,7 +6,7 @@ using rent_for_students.Domain.Services;
 
 namespace rent_for_students.Application.UseCases
 {
-    // PROMPT v1.0: Template Method integration - ListingUseCaseMediator
+    // PROMPT v1.2: Template Method integration - ListingUseCaseMediator
     public class ListingUseCaseMediator : BaseUseCaseMediator, IListingUseCaseMediator
     {
         private readonly HousingService _housingService;
@@ -24,7 +24,7 @@ namespace rent_for_students.Application.UseCases
                 return Result<IReadOnlyList<HousingListing>>.Failure(ErrorCodes.ValidationError, "Search criteria is required.");
             }
 
-            var listings = await _housingService.SearchListingsAsync(criteria, ct);
+            IReadOnlyList<HousingListing> listings = await _housingService.SearchListingsAsync(criteria, ct);
             return Result<IReadOnlyList<HousingListing>>.Success(listings);
         }
 
@@ -35,7 +35,7 @@ namespace rent_for_students.Application.UseCases
                 return Result<HousingListing>.Failure(ErrorCodes.ValidationError, "Listing id is invalid.");
             }
 
-            var listing = await _housingService.GetListingDetailsAsync(id, ct);
+            HousingListing? listing = await _housingService.GetListingDetailsAsync(id, ct);
             if (listing is null)
             {
                 return Result<HousingListing>.Failure(ErrorCodes.NotFound, "Listing not found.");
@@ -44,35 +44,13 @@ namespace rent_for_students.Application.UseCases
             return Result<HousingListing>.Success(listing);
         }
 
-        // PROMPT v1.0: Template Method refactoring - CreateAsync operation
-        public async Task<Result<Guid>> CreateAsync(HousingListing listing, CancellationToken ct = default)
-        {
-            OperationValidationResult validation = ValidateListingPayload(listing, "Listing is required.");
-            if (!validation.IsValid)
-            {
-                return ValidationFailure<Guid>(validation);
-            }
+        // PROMPT v1.2: Template Method - listing create flow
+        public Task<Result<Guid>> CreateAsync(HousingListing listing, CancellationToken ct = default)
+            => ExecuteListingCreateTemplateAsync(listing, ListingCreateFlow.Create, ct);
 
-            Guid id = await _housingService.CreateListingAsync(listing, ct);
-            await NotifyIfNeededAsync($"Listing created: {id}", ct);
-
-            return Success(id);
-        }
-
-        // PROMPT v1.0: Template Method refactoring - CreateDraftAsync operation
-        public async Task<Result<Guid>> CreateDraftAsync(HousingListing draft, CancellationToken ct = default)
-        {
-            OperationValidationResult validation = ValidateListingPayload(draft, "Draft is required.");
-            if (!validation.IsValid)
-            {
-                return ValidationFailure<Guid>(validation);
-            }
-
-            Guid id = await _housingService.CreateListingDraftAsync(draft, ct);
-            await NotifyIfNeededAsync($"Draft created: {id}", ct);
-
-            return Success(id);
-        }
+        // PROMPT v1.2: Template Method - listing draft create flow
+        public Task<Result<Guid>> CreateDraftAsync(HousingListing draft, CancellationToken ct = default)
+            => ExecuteListingCreateTemplateAsync(draft, ListingCreateFlow.CreateDraft, ct);
 
         public async Task<Result<bool>> UpdateDraftAsync(Guid id, HousingListing draft, CancellationToken ct = default)
         {
@@ -81,13 +59,13 @@ namespace rent_for_students.Application.UseCases
                 return Result<bool>.Failure(ErrorCodes.ValidationError, "Draft update payload is invalid.");
             }
 
-            var validationMessage = ValidateListing(draft);
+            string? validationMessage = ValidateListing(draft);
             if (validationMessage is not null)
             {
                 return Result<bool>.Failure(ErrorCodes.ValidationError, validationMessage);
             }
 
-            var updated = await _housingService.UpdateListingDraftAsync(id, draft, ct);
+            bool updated = await _housingService.UpdateListingDraftAsync(id, draft, ct);
             if (!updated)
             {
                 return Result<bool>.Failure(ErrorCodes.NotFoundOrNotDraft, "Draft listing was not found or is already published.");
@@ -104,7 +82,7 @@ namespace rent_for_students.Application.UseCases
                 return Result<bool>.Failure(ErrorCodes.ValidationError, "Listing id is invalid.");
             }
 
-            var published = await _housingService.PublishListingAsync(id, ct);
+            bool published = await _housingService.PublishListingAsync(id, ct);
             if (!published)
             {
                 return Result<bool>.Failure(ErrorCodes.NotFound, "Listing was not found.");
@@ -121,13 +99,13 @@ namespace rent_for_students.Application.UseCases
                 return Result<bool>.Failure(ErrorCodes.ValidationError, "Listing update payload is invalid.");
             }
 
-            var validationMessage = ValidateListing(listing);
+            string? validationMessage = ValidateListing(listing);
             if (validationMessage is not null)
             {
                 return Result<bool>.Failure(ErrorCodes.ValidationError, validationMessage);
             }
 
-            var updated = await _housingService.UpdateListingAsync(id, listing, ct);
+            bool updated = await _housingService.UpdateListingAsync(id, listing, ct);
             if (!updated)
             {
                 return Result<bool>.Failure(ErrorCodes.NotFound, "Listing was not found.");
@@ -135,6 +113,55 @@ namespace rent_for_students.Application.UseCases
 
             await _notificationService.NotifyAsync($"Listing updated: {id}", ct);
             return Result<bool>.Success(true);
+        }
+
+        protected override Task<OperationValidationResult> ValidateListingCreateAsync(
+            HousingListing? listing,
+            ListingCreateFlow flow,
+            CancellationToken ct)
+        {
+            if (listing is null)
+            {
+                string missingMessage = flow == ListingCreateFlow.Create
+                    ? "Listing is required."
+                    : "Draft is required.";
+
+                return Task.FromResult(OperationValidationResult.Invalid(missingMessage, ErrorCodes.ValidationError));
+            }
+
+            string? validationMessage = ValidateListing(listing);
+            if (validationMessage is not null)
+            {
+                return Task.FromResult(OperationValidationResult.Invalid(validationMessage, ErrorCodes.ValidationError));
+            }
+
+            return Task.FromResult(Valid());
+        }
+
+        protected override Task<Guid> ExecuteListingCreateCoreAsync(
+            HousingListing listing,
+            ListingCreateFlow flow,
+            CancellationToken ct)
+        {
+            return flow switch
+            {
+                ListingCreateFlow.Create => _housingService.CreateListingAsync(listing, ct),
+                ListingCreateFlow.CreateDraft => _housingService.CreateListingDraftAsync(listing, ct),
+                _ => throw new NotSupportedException($"Unsupported listing create flow: {flow}.")
+            };
+        }
+
+        protected override string? BuildListingCreateNotificationMessage(
+            HousingListing listing,
+            Guid createdId,
+            ListingCreateFlow flow)
+        {
+            return flow switch
+            {
+                ListingCreateFlow.Create => $"Listing created: {createdId}",
+                ListingCreateFlow.CreateDraft => $"Draft created: {createdId}",
+                _ => null
+            };
         }
 
         private static string? ValidateListing(HousingListing listing)
@@ -160,22 +187,6 @@ namespace rent_for_students.Application.UseCases
             }
 
             return null;
-        }
-
-        private static OperationValidationResult ValidateListingPayload(HousingListing? listing, string missingMessage)
-        {
-            if (listing is null)
-            {
-                return OperationValidationResult.Invalid(missingMessage, ErrorCodes.ValidationError);
-            }
-
-            string? validationMessage = ValidateListing(listing);
-            if (validationMessage is not null)
-            {
-                return OperationValidationResult.Invalid(validationMessage, ErrorCodes.ValidationError);
-            }
-
-            return OperationValidationResult.Valid();
         }
     }
 }

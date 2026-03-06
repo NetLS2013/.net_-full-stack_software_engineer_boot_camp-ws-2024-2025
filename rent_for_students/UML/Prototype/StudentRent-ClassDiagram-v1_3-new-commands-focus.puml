@@ -1,0 +1,113 @@
+@startuml v1_3-new-commands-focus, Prototype pattern focus
+hide empty members
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+left to right direction
+
+title StudentRent v1.3 - New Commands Focus (Prototype flow)
+
+package "Controllers" {
+  class ApplicationsController {
+    +Apply(model, ct)
+    +ApplyFromProfile(model, ct)
+    -PopulateProfileViewDataAsync(ct)
+  }
+}
+
+package "Application.Commands" {
+  interface "ICommand<TResult>" as ICommandT {
+    +ExecuteAsync(ct): Task<Result<TResult>>
+  }
+
+  class CommandDispatcher {
+    +DispatchAsync<TResult>(command, ct): Task<Result<TResult>>
+  }
+
+  class CreateRentalApplicationProfileCommand {
+    -_receiver: IApplicationUseCaseMediator
+    -_profile: RentalApplicationProfile
+  }
+
+  class GetRentalApplicationProfilesCommand {
+    -_receiver: IApplicationUseCaseMediator
+  }
+
+  class CreateRentalApplicationFromProfileCommand {
+    -_receiver: IApplicationUseCaseMediator
+    -_listingId: Guid
+    -_profileId: Guid
+  }
+}
+
+package "Application.UseCases" {
+  abstract class BaseUseCaseMediator {
+    #ExecuteApplyTemplateAsync(listingId, applicant, ct)
+  }
+
+  interface IApplicationUseCaseMediator {
+    +CreateProfileAsync(profile, ct)
+    +ListProfilesAsync(ct)
+    +ApplyFromProfileAsync(listingId, profileId, ct)
+  }
+
+  class ApplicationUseCaseMediator {
+    -_housingService: HousingService
+    -_rentalApplicationRepository: IRentalApplicationRepository
+    -_profileRepository: IRentalApplicationProfileRepository
+  }
+}
+
+package "Domain.Entities" {
+  class RentalApplicationProfile {
+    +CreateApplicationPrototype(listingId: Guid): RentalApplication
+  }
+
+  class RentalApplication
+}
+
+package "Domain.Contracts" {
+  interface IRentalApplicationProfileRepository
+  interface IRentalApplicationRepository
+}
+
+package "Domain.Services" {
+  class HousingService
+}
+
+package "Application.Common" {
+  class Result
+  class "Result<T>" as ResultT
+}
+
+ResultT --|> Result
+ApplicationUseCaseMediator ..|> IApplicationUseCaseMediator
+ApplicationUseCaseMediator --|> BaseUseCaseMediator
+
+CreateRentalApplicationProfileCommand ..|> ICommandT
+GetRentalApplicationProfilesCommand ..|> ICommandT
+CreateRentalApplicationFromProfileCommand ..|> ICommandT
+
+ApplicationsController --> CommandDispatcher
+ApplicationsController --> CreateRentalApplicationProfileCommand
+ApplicationsController --> GetRentalApplicationProfilesCommand
+ApplicationsController --> CreateRentalApplicationFromProfileCommand
+
+CommandDispatcher --> ICommandT
+CreateRentalApplicationProfileCommand --> IApplicationUseCaseMediator
+GetRentalApplicationProfilesCommand --> IApplicationUseCaseMediator
+CreateRentalApplicationFromProfileCommand --> IApplicationUseCaseMediator
+
+ApplicationUseCaseMediator --> IRentalApplicationProfileRepository
+ApplicationUseCaseMediator --> IRentalApplicationRepository
+ApplicationUseCaseMediator --> HousingService
+ApplicationUseCaseMediator --> RentalApplicationProfile
+RentalApplicationProfile --> RentalApplication : creates clone
+
+note right of ApplicationsController
+  New commands usage:
+  1) Save profile from Apply(model)
+  2) List profiles for Apply GET
+  3) Apply from existing profile
+end note
+
+@enduml

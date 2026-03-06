@@ -1,0 +1,140 @@
+@startuml ClassDiagram-v1_3-part3-infrastructure-integration
+hide empty members
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+left to right direction
+
+title StudentRent v1.3 - Part 3 (Infrastructure + Integration, Prototype-ready)
+
+package "Application.UseCases" {
+  abstract class BaseUseCaseMediator {
+    #ExecuteApplyTemplateAsync(listingId, applicant, ct)
+  }
+
+  interface IApplicationUseCaseMediator {
+    +ApplyAsync(listingId, applicant, ct)
+    +ApplyFromProfileAsync(listingId, profileId, ct)
+    +CreateProfileAsync(profile, ct)
+    +ListProfilesAsync(ct)
+    +ListByListingIdAsync(listingId, ct)
+  }
+
+  class ApplicationUseCaseMediator {
+    -_housingService: HousingService
+    -_rentalApplicationRepository: IRentalApplicationRepository
+    -_profileRepository: IRentalApplicationProfileRepository
+  }
+
+  class ListingUseCaseMediator {
+    -_housingService: HousingService
+  }
+}
+
+package "Application.Notifications" {
+  interface INotificationService
+}
+
+package "Domain.Contracts" {
+  interface IHousingRepository
+  interface IRentalApplicationRepository
+  interface IRentalApplicationProfileRepository
+}
+
+package "Domain.Services" {
+  class HousingService
+}
+
+package "Domain.Entities" {
+  class HousingListing
+  class RentalApplication
+  class RentalApplicationProfile
+  enum ApplicationStatus
+}
+
+package "Infrastructure" {
+  class AppDbContext {
+    +HousingListings: DbSet<HousingListing>
+    +RentalApplications: DbSet<RentalApplication>
+    +RentalApplicationProfiles: DbSet<RentalApplicationProfile>
+    +OnModelCreating(modelBuilder): void
+  }
+
+  class EfHousingRepository {
+    -_db: AppDbContext
+    +GetByIdAsync(id, ct)
+    +SearchAsync(criteria, ct)
+    +AddAsync(listing, ct)
+    +UpdateAsync(listing, ct)
+    +SaveChangesAsync(ct)
+  }
+
+  class EfRentalApplicationRepository {
+    -_db: AppDbContext
+    +AddAsync(application, ct)
+    +GetByIdAsync(id, ct)
+    +ListByListingIdAsync(listingId, ct)
+    +SaveChangesAsync(ct)
+  }
+
+  class EfRentalApplicationProfileRepository {
+    -_db: AppDbContext
+    +AddAsync(profile, ct)
+    +GetByIdAsync(id, ct)
+    +ListAsync(ct)
+    +SaveChangesAsync(ct)
+  }
+
+  class LogNotificationService {
+    -_logger: ILogger<LogNotificationService>
+    +NotifyAsync(message, ct): Task
+  }
+}
+
+package "Composition Root" {
+  class Program {
+    +AddDbContext<AppDbContext>()
+    +AddScoped<IHousingRepository, EfHousingRepository>()
+    +AddScoped<IRentalApplicationRepository, EfRentalApplicationRepository>()
+    +AddScoped<IRentalApplicationProfileRepository, EfRentalApplicationProfileRepository>()
+    +AddScoped<IApplicationUseCaseMediator, ApplicationUseCaseMediator>()
+    +Database.MigrateAsync()
+  }
+}
+
+ApplicationUseCaseMediator ..|> IApplicationUseCaseMediator
+ApplicationUseCaseMediator --|> BaseUseCaseMediator
+
+EfHousingRepository ..|> IHousingRepository
+EfRentalApplicationRepository ..|> IRentalApplicationRepository
+EfRentalApplicationProfileRepository ..|> IRentalApplicationProfileRepository
+LogNotificationService ..|> INotificationService
+
+ListingUseCaseMediator --> HousingService
+ApplicationUseCaseMediator --> HousingService
+ApplicationUseCaseMediator --> IRentalApplicationRepository
+ApplicationUseCaseMediator --> IRentalApplicationProfileRepository
+ApplicationUseCaseMediator --> INotificationService
+
+HousingService --> IHousingRepository
+
+EfHousingRepository --> AppDbContext
+EfRentalApplicationRepository --> AppDbContext
+EfRentalApplicationProfileRepository --> AppDbContext
+AppDbContext --> HousingListing
+AppDbContext --> RentalApplication
+AppDbContext --> RentalApplicationProfile
+AppDbContext --> ApplicationStatus
+
+Program --> AppDbContext
+Program --> EfHousingRepository
+Program --> EfRentalApplicationRepository
+Program --> EfRentalApplicationProfileRepository
+Program --> ApplicationUseCaseMediator
+
+note right of EfRentalApplicationProfileRepository
+  Prototype persistence:
+  stores and retrieves
+  RentalApplicationProfile entries.
+end note
+
+@enduml
