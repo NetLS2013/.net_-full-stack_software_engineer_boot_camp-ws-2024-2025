@@ -14,20 +14,46 @@ namespace rent_for_students.Infrastructure.Repositories
             _db = db;
         }
 
-        public Task AddAsync(RentalApplicationProfile profile, CancellationToken ct = default)
-            => _db.RentalApplicationProfiles.AddAsync(profile, ct).AsTask();
+        public Task AddAsync(IRentalApplicationPrototype prototype, CancellationToken ct = default)
+        {
+            RentalApplicationProfile entity = ToEntity(prototype);
+            return _db.RentalApplicationProfiles.AddAsync(entity, ct).AsTask();
+        }
 
-        public Task<RentalApplicationProfile?> GetByIdAsync(Guid id, CancellationToken ct = default)
-            => _db.RentalApplicationProfiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        public async Task<IRentalApplicationPrototype?> GetByIdAsync(Guid id, CancellationToken ct = default)
+            => await _db.RentalApplicationProfiles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
 
-        public async Task<IReadOnlyList<RentalApplicationProfile>> ListAsync(CancellationToken ct = default)
-            => await _db.RentalApplicationProfiles
+        public async Task<IReadOnlyList<IRentalApplicationPrototype>> ListAsync(CancellationToken ct = default)
+        {
+            List<RentalApplicationProfile> profiles = await _db.RentalApplicationProfiles
                 .AsNoTracking()
                 .OrderBy(x => x.ProfileName)
                 .ThenByDescending(x => x.UpdatedAtUtc)
                 .ToListAsync(ct);
+            return profiles.Cast<IRentalApplicationPrototype>().ToList();
+        }
 
         public Task SaveChangesAsync(CancellationToken ct = default)
             => _db.SaveChangesAsync(ct);
+
+        private static RentalApplicationProfile ToEntity(IRentalApplicationPrototype prototype)
+        {
+            if (prototype is RentalApplicationProfile profile)
+            {
+                return profile;
+            }
+
+            return new RentalApplicationProfile
+            {
+                Id = prototype.Id,
+                ProfileName = prototype.ProfileName,
+                ApplicantName = prototype.ApplicantName,
+                Phone = prototype.Phone,
+                Email = prototype.Email,
+                Message = prototype.Message,
+                CreatedAtUtc = prototype.CreatedAtUtc,
+                UpdatedAtUtc = prototype.UpdatedAtUtc
+            };
+        }
     }
 }

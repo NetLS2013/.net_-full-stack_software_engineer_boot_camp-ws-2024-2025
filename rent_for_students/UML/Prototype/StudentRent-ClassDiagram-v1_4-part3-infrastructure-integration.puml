@@ -1,10 +1,10 @@
-@startuml ClassDiagram-v1_3-part3-infrastructure-integration
+@startuml ClassDiagram-v1_4-part3-infrastructure-integration
 hide empty members
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
 left to right direction
 
-title StudentRent v1.3 - Part 3 (Infrastructure + Integration, Prototype-ready)
+title StudentRent v1.4 - Part 3 (Infrastructure + Integration, Prototype interface target)
 
 package "Application.UseCases" {
   abstract class BaseUseCaseMediator {
@@ -14,7 +14,7 @@ package "Application.UseCases" {
   interface IApplicationUseCaseMediator {
     +ApplyAsync(listingId, applicant, ct)
     +ApplyFromProfileAsync(listingId, profileId, ct)
-    +CreateProfileAsync(profile, ct)
+    +CreateProfileAsync(prototype, ct)
     +ListProfilesAsync(ct)
     +ListByListingIdAsync(listingId, ct)
   }
@@ -22,7 +22,7 @@ package "Application.UseCases" {
   class ApplicationUseCaseMediator {
     -_housingService: HousingService
     -_rentalApplicationRepository: IRentalApplicationRepository
-    -_profileRepository: IRentalApplicationProfileRepository
+    -_prototypeRepository: IRentalApplicationProfileRepository
   }
 
   class ListingUseCaseMediator {
@@ -34,10 +34,17 @@ package "Application.Notifications" {
   interface INotificationService
 }
 
+package "Domain.Prototype" {
+  interface IRentalApplicationPrototype
+}
+
 package "Domain.Contracts" {
   interface IHousingRepository
   interface IRentalApplicationRepository
-  interface IRentalApplicationProfileRepository
+  interface IRentalApplicationProfileRepository {
+    +GetByIdAsync(id, ct): Task<IRentalApplicationPrototype?>
+    +ListAsync(ct): Task<IReadOnlyList<IRentalApplicationPrototype>>
+  }
 }
 
 package "Domain.Services" {
@@ -61,27 +68,16 @@ package "Infrastructure" {
 
   class EfHousingRepository {
     -_db: AppDbContext
-    +GetByIdAsync(id, ct)
-    +SearchAsync(criteria, ct)
-    +AddAsync(listing, ct)
-    +UpdateAsync(listing, ct)
-    +SaveChangesAsync(ct)
   }
 
   class EfRentalApplicationRepository {
     -_db: AppDbContext
-    +AddAsync(application, ct)
-    +GetByIdAsync(id, ct)
-    +ListByListingIdAsync(listingId, ct)
-    +SaveChangesAsync(ct)
   }
 
   class EfRentalApplicationProfileRepository {
     -_db: AppDbContext
-    +AddAsync(profile, ct)
-    +GetByIdAsync(id, ct)
-    +ListAsync(ct)
-    +SaveChangesAsync(ct)
+    +GetByIdAsync(id, ct): Task<IRentalApplicationPrototype?>
+    +ListAsync(ct): Task<IReadOnlyList<IRentalApplicationPrototype>>
   }
 
   class LogNotificationService {
@@ -114,6 +110,7 @@ ApplicationUseCaseMediator --> HousingService
 ApplicationUseCaseMediator --> IRentalApplicationRepository
 ApplicationUseCaseMediator --> IRentalApplicationProfileRepository
 ApplicationUseCaseMediator --> INotificationService
+ApplicationUseCaseMediator --> IRentalApplicationPrototype
 
 HousingService --> IHousingRepository
 
@@ -125,6 +122,8 @@ AppDbContext --> RentalApplication
 AppDbContext --> RentalApplicationProfile
 AppDbContext --> ApplicationStatus
 
+RentalApplicationProfile ..|> IRentalApplicationPrototype
+
 Program --> AppDbContext
 Program --> EfHousingRepository
 Program --> EfRentalApplicationRepository
@@ -132,9 +131,9 @@ Program --> EfRentalApplicationProfileRepository
 Program --> ApplicationUseCaseMediator
 
 note right of EfRentalApplicationProfileRepository
-  Prototype persistence:
-  stores and retrieves
-  RentalApplicationProfile entries.
+  v1.4 target:
+  repository boundary can expose
+  Prototype abstraction.
 end note
 
 @enduml

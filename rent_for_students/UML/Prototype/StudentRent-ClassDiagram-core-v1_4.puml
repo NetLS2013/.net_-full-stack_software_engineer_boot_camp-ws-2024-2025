@@ -1,4 +1,4 @@
-@startuml ClassDiagram-core-v1_4 added Prototype pattern 
+@startuml ClassDiagram-core-v1_4
 hide empty members
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
@@ -7,7 +7,7 @@ skinparam ranksep 70
 skinparam nodesep 50
 top to bottom direction
 
-title StudentRent Class Diagram core v1.4 (Patterns: Command + Mediator + Template Method + Prototype)
+title StudentRent Class Diagram core v1.4 (Command + Mediator + Template Method + Prototype interface target)
 
 package "Controllers" as CTRL {
   class ListingsController {
@@ -36,7 +36,7 @@ package "Commands" as CMD {
 
   class CreateRentalApplicationProfileCommand {
     -_receiver: IApplicationUseCaseMediator
-    -_profile: RentalApplicationProfile
+    -_prototype: IRentalApplicationPrototype
   }
 
   class GetRentalApplicationProfilesCommand {
@@ -68,15 +68,15 @@ package "UseCases" as UC {
   interface IApplicationUseCaseMediator {
     +ApplyAsync(listingId: Guid, applicant: RentalApplication, ct): Task<Result<Guid>>
     +ApplyFromProfileAsync(listingId: Guid, profileId: Guid, ct): Task<Result<Guid>>
-    +CreateProfileAsync(profile: RentalApplicationProfile, ct): Task<Result<Guid>>
-    +ListProfilesAsync(ct): Task<Result<IReadOnlyList<RentalApplicationProfile>>>
+    +CreateProfileAsync(prototype: IRentalApplicationPrototype, ct): Task<Result<Guid>>
+    +ListProfilesAsync(ct): Task<Result<IReadOnlyList<IRentalApplicationPrototype>>>
     +ListByListingIdAsync(listingId: Guid, ct): Task<Result<IReadOnlyList<RentalApplication>>>
   }
 
   class ApplicationUseCaseMediator {
     -_housingService: HousingService
     -_rentalApplicationRepository: IRentalApplicationRepository
-    -_profileRepository: IRentalApplicationProfileRepository
+    -_prototypeRepository: IRentalApplicationProfileRepository
   }
 }
 
@@ -104,6 +104,13 @@ package "Notifications" as NOTIF {
   interface INotificationService
 }
 
+package "Prototype" as PROTO {
+  interface IRentalApplicationPrototype <<Prototype>> {
+    +Clone(): IRentalApplicationPrototype
+    +ToRentalApplication(listingId: Guid): RentalApplication
+  }
+}
+
 package "Entities" as ENT {
   class HousingListing {
     +Id: Guid
@@ -129,7 +136,7 @@ package "Entities" as ENT {
     +CreatedAtUtc: DateTime
   }
 
-  class RentalApplicationProfile {
+  class RentalApplicationProfile <<ConcretePrototype>> {
     +Id: Guid
     +ProfileName: string
     +ApplicantName: string
@@ -138,7 +145,8 @@ package "Entities" as ENT {
     +Message: string
     +CreatedAtUtc: DateTime
     +UpdatedAtUtc: DateTime
-    +CreateApplicationPrototype(listingId: Guid): RentalApplication
+    +Clone(): IRentalApplicationPrototype
+    +ToRentalApplication(listingId: Guid): RentalApplication
   }
 
   enum RoomType {
@@ -162,7 +170,10 @@ package "Requests" as REQ {
 package "Contracts" as CNTR {
   interface IHousingRepository
   interface IRentalApplicationRepository
-  interface IRentalApplicationProfileRepository
+  interface IRentalApplicationProfileRepository {
+    +GetByIdAsync(id, ct): Task<IRentalApplicationPrototype?>
+    +ListAsync(ct): Task<IReadOnlyList<IRentalApplicationPrototype>>
+  }
 }
 
 package "Services" as SRV {
@@ -186,6 +197,8 @@ package "Infrastructure" as INF {
 
   class EfRentalApplicationProfileRepository {
     -_db: AppDbContext
+    +GetByIdAsync(id, ct): Task<IRentalApplicationPrototype?>
+    +ListAsync(ct): Task<IReadOnlyList<IRentalApplicationPrototype>>
   }
 
   class LogNotificationService {
@@ -200,7 +213,8 @@ UC -[hidden]down-> COM
 COM -[hidden]down-> NOTIF
 UC -[hidden]right-> SRV
 SRV -[hidden]up-> CNTR
-CNTR -[hidden]left-> ENT
+CNTR -[hidden]left-> PROTO
+PROTO -[hidden]left-> ENT
 ENT -[hidden]down-> REQ
 CNTR -[hidden]right-> INF
 
@@ -219,6 +233,7 @@ ApplicationCommand ..|> ICommandT
 CreateRentalApplicationProfileCommand ..|> ICommandT
 GetRentalApplicationProfilesCommand ..|> ICommandT
 CreateRentalApplicationFromProfileCommand ..|> ICommandT
+RentalApplicationProfile ..|> IRentalApplicationPrototype
 
 ' Controller dependencies
 ListingsController -down-> CommandDispatcher
@@ -242,6 +257,7 @@ ListingUseCaseMediator -down-> INotificationService
 ApplicationUseCaseMediator -right-> HousingService
 ApplicationUseCaseMediator -up-> IRentalApplicationRepository
 ApplicationUseCaseMediator -up-> IRentalApplicationProfileRepository
+ApplicationUseCaseMediator -left-> IRentalApplicationPrototype
 ApplicationUseCaseMediator -down-> INotificationService
 
 ' Domain dependencies
@@ -249,7 +265,7 @@ HousingService -up-> IHousingRepository
 ListingSearchCriteria -up-> RoomType
 HousingListing -down-> RoomType
 RentalApplication -down-> ApplicationStatus
-RentalApplicationProfile -down-> RentalApplication : creates clone
+IRentalApplicationPrototype -left-> RentalApplication : builds target
 
 ' Infrastructure dependencies
 EfHousingRepository -down-> AppDbContext
@@ -259,5 +275,11 @@ AppDbContext -left-> HousingListing
 AppDbContext -left-> RentalApplication
 AppDbContext -left-> RentalApplicationProfile
 AppDbContext -left-> ApplicationStatus
+
+note right of IRentalApplicationPrototype
+  Baseline Prototype target for v1.4:
+  client depends on interface,
+  concrete prototype clones itself.
+end note
 
 @enduml

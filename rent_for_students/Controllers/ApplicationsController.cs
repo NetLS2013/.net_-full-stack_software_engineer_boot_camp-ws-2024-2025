@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using rent_for_students.Application.Common;
 using rent_for_students.Application.Commands;
 using rent_for_students.Application.UseCases;
+using rent_for_students.Domain.Contracts;
 using rent_for_students.Domain.Entities;
 using rent_for_students.ViewModels;
 
@@ -176,8 +177,8 @@ namespace rent_for_students.Controllers
             var cmd = new GetRentalApplicationProfilesCommand(_applicationMediator);
             var profilesResult = await _dispatcher.DispatchAsync(cmd, ct);
             ViewData["ApplicationProfiles"] = profilesResult.IsSuccess
-                ? profilesResult.Value ?? Array.Empty<RentalApplicationProfile>()
-                : Array.Empty<RentalApplicationProfile>();
+                ? profilesResult.Value ?? Array.Empty<IRentalApplicationPrototype>()
+                : Array.Empty<IRentalApplicationPrototype>();
         }
     }
 }

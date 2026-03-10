@@ -158,5 +158,32 @@ namespace rent_for_students.Tests
             Assert.True(listResult.IsSuccess);
             Assert.Contains(listResult.Value!, x => x.Id == createResult.Value && x.ProfileName == "Quick Apply");
         }
+
+        [Fact]
+        public void RentalApplicationProfile_Clone_CopiesPrototypeFields()
+        {
+            var prototype = new RentalApplicationProfile
+            {
+                Id = Guid.NewGuid(),
+                ProfileName = "Baseline Profile",
+                ApplicantName = "Student User",
+                Phone = "+380501231231",
+                Email = "student@example.com",
+                Message = "Clone me.",
+                CreatedAtUtc = DateTime.UtcNow.AddDays(-1),
+                UpdatedAtUtc = DateTime.UtcNow
+            };
+
+            var clone = prototype.Clone();
+
+            Assert.NotNull(clone);
+            Assert.NotSame(prototype, clone);
+            Assert.Equal(prototype.Id, clone.Id);
+            Assert.Equal(prototype.ProfileName, clone.ProfileName);
+            Assert.Equal(prototype.ApplicantName, clone.ApplicantName);
+            Assert.Equal(prototype.Phone, clone.Phone);
+            Assert.Equal(prototype.Email, clone.Email);
+            Assert.Equal(prototype.Message, clone.Message);
+        }
     }
 }

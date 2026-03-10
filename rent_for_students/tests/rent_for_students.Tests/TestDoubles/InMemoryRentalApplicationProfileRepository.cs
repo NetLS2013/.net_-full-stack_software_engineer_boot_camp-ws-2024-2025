@@ -5,19 +5,19 @@ namespace rent_for_students.Tests.TestDoubles
 {
     internal sealed class InMemoryRentalApplicationProfileRepository : IRentalApplicationProfileRepository
     {
-        private readonly List<RentalApplicationProfile> _items = new();
+        private readonly List<IRentalApplicationPrototype> _items = new();
 
-        public Task AddAsync(RentalApplicationProfile profile, CancellationToken ct = default)
+        public Task AddAsync(IRentalApplicationPrototype prototype, CancellationToken ct = default)
         {
-            _items.Add(profile);
+            _items.Add(prototype);
             return Task.CompletedTask;
         }
 
-        public Task<RentalApplicationProfile?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        public Task<IRentalApplicationPrototype?> GetByIdAsync(Guid id, CancellationToken ct = default)
             => Task.FromResult(_items.FirstOrDefault(x => x.Id == id));
 
-        public Task<IReadOnlyList<RentalApplicationProfile>> ListAsync(CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<RentalApplicationProfile>>(
+        public Task<IReadOnlyList<IRentalApplicationPrototype>> ListAsync(CancellationToken ct = default)
+            => Task.FromResult<IReadOnlyList<IRentalApplicationPrototype>>(
                 _items.OrderBy(x => x.ProfileName).ThenByDescending(x => x.UpdatedAtUtc).ToList());
 
         public Task SaveChangesAsync(CancellationToken ct = default) => Task.CompletedTask;

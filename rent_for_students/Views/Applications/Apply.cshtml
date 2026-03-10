@@ -1,10 +1,10 @@
 @using rent_for_students.ViewModels
-@using rent_for_students.Domain.Entities
+@using rent_for_students.Domain.Contracts
 @model RentalApplicationCreateViewModel
 @{
     ViewData["Title"] = "Apply for Listing";
-    IReadOnlyList<RentalApplicationProfile> profiles =
-        ViewData["ApplicationProfiles"] as IReadOnlyList<RentalApplicationProfile> ?? Array.Empty<RentalApplicationProfile>();
+    IReadOnlyList<IRentalApplicationPrototype> profiles =
+        ViewData["ApplicationProfiles"] as IReadOnlyList<IRentalApplicationPrototype> ?? Array.Empty<IRentalApplicationPrototype>();
 }
 
 <h2>Apply for Listing</h2>

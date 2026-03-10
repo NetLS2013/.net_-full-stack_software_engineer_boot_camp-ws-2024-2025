@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using rent_for_students.Domain.Contracts;
 
 namespace rent_for_students.Domain.Entities
 {
-    // PROMPT v1.3: Prototype source for reusable rental application payloads.
-    public class RentalApplicationProfile
+    // PROMPT v1.4: Baseline Prototype - concrete object clones itself.
+    public class RentalApplicationProfile : IRentalApplicationPrototype
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -30,8 +31,26 @@ namespace rent_for_students.Domain.Entities
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
-        // PROMPT v1.3: Explicit prototype contract (no ICloneable ambiguity).
-        public RentalApplication CreateApplicationPrototype(Guid listingId)
+        public RentalApplicationProfile()
+        {
+        }
+
+        private RentalApplicationProfile(RentalApplicationProfile prototype)
+        {
+            Id = prototype.Id;
+            ProfileName = prototype.ProfileName;
+            ApplicantName = prototype.ApplicantName;
+            Phone = prototype.Phone;
+            Email = prototype.Email;
+            Message = prototype.Message;
+            CreatedAtUtc = prototype.CreatedAtUtc;
+            UpdatedAtUtc = prototype.UpdatedAtUtc;
+        }
+
+        public IRentalApplicationPrototype Clone()
+            => new RentalApplicationProfile(this);
+
+        public RentalApplication ToRentalApplication(Guid listingId)
         {
             return new RentalApplication
             {
@@ -44,5 +63,9 @@ namespace rent_for_students.Domain.Entities
                 CreatedAtUtc = DateTime.UtcNow
             };
         }
+
+        // PROMPT v1.4: Compatibility wrapper for existing v1.3 call sites.
+        public RentalApplication CreateApplicationPrototype(Guid listingId)
+            => ToRentalApplication(listingId);
     }
 }

@@ -37,46 +37,47 @@ namespace rent_for_students.Application.UseCases
                 return Result<Guid>.Failure(ErrorCodes.ValidationError, "Profile id is invalid.");
             }
 
-            RentalApplicationProfile? profile = await _profileRepository.GetByIdAsync(profileId, ct);
-            if (profile is null)
+            IRentalApplicationPrototype? prototype = await _profileRepository.GetByIdAsync(profileId, ct);
+            if (prototype is null)
             {
                 return Result<Guid>.Failure(ErrorCodes.NotFound, "Application profile was not found.");
             }
 
-            RentalApplication applicant = profile.CreateApplicationPrototype(listingId);
+            IRentalApplicationPrototype clone = prototype.Clone();
+            RentalApplication applicant = clone.ToRentalApplication(listingId);
             return await ExecuteApplyTemplateAsync(listingId, applicant, ct);
         }
 
-        // PROMPT v1.3: Prototype source management - create profile.
-        public async Task<Result<Guid>> CreateProfileAsync(RentalApplicationProfile profile, CancellationToken ct = default)
+        // PROMPT v1.4: Prototype source management through baseline interface.
+        public async Task<Result<Guid>> CreateProfileAsync(IRentalApplicationPrototype prototype, CancellationToken ct = default)
         {
-            if (profile is null)
+            if (prototype is null)
             {
                 return Result<Guid>.Failure(ErrorCodes.ValidationError, "Application profile is required.");
             }
 
-            string? validationMessage = ValidateProfile(profile);
+            string? validationMessage = ValidateProfile(prototype);
             if (validationMessage is not null)
             {
                 return Result<Guid>.Failure(ErrorCodes.ValidationError, validationMessage);
             }
 
-            profile.Id = profile.Id == Guid.Empty ? Guid.NewGuid() : profile.Id;
-            profile.CreatedAtUtc = profile.CreatedAtUtc == default ? DateTime.UtcNow : profile.CreatedAtUtc;
-            profile.UpdatedAtUtc = DateTime.UtcNow;
+            prototype.Id = prototype.Id == Guid.Empty ? Guid.NewGuid() : prototype.Id;
+            prototype.CreatedAtUtc = prototype.CreatedAtUtc == default ? DateTime.UtcNow : prototype.CreatedAtUtc;
+            prototype.UpdatedAtUtc = DateTime.UtcNow;
 
-            await _profileRepository.AddAsync(profile, ct);
+            await _profileRepository.AddAsync(prototype, ct);
             await _profileRepository.SaveChangesAsync(ct);
-            await NotifyIfNeededAsync($"Application profile created: profileId={profile.Id}, name={profile.ProfileName}", ct);
+            await NotifyIfNeededAsync($"Application profile created: profileId={prototype.Id}, name={prototype.ProfileName}", ct);
 
-            return Success(profile.Id, "Application profile was created.");
+            return Success(prototype.Id, "Application profile was created.");
         }
 
-        // PROMPT v1.3: Prototype source management - list profiles.
-        public async Task<Result<IReadOnlyList<RentalApplicationProfile>>> ListProfilesAsync(CancellationToken ct = default)
+        // PROMPT v1.4: Prototype source management - list via interface.
+        public async Task<Result<IReadOnlyList<IRentalApplicationPrototype>>> ListProfilesAsync(CancellationToken ct = default)
         {
-            IReadOnlyList<RentalApplicationProfile> profiles = await _profileRepository.ListAsync(ct);
-            return Result<IReadOnlyList<RentalApplicationProfile>>.Success(profiles);
+            IReadOnlyList<IRentalApplicationPrototype> prototypes = await _profileRepository.ListAsync(ct);
+            return Result<IReadOnlyList<IRentalApplicationPrototype>>.Success(prototypes);
         }
 
         public async Task<Result<IReadOnlyList<RentalApplication>>> ListByListingIdAsync(Guid listingId, CancellationToken ct = default)
@@ -176,24 +177,24 @@ namespace rent_for_students.Application.UseCases
             return null;
         }
 
-        private static string? ValidateProfile(RentalApplicationProfile profile)
+        private static string? ValidateProfile(IRentalApplicationPrototype prototype)
         {
-            if (string.IsNullOrWhiteSpace(profile.ProfileName) || profile.ProfileName.Trim().Length < 2)
+            if (string.IsNullOrWhiteSpace(prototype.ProfileName) || prototype.ProfileName.Trim().Length < 2)
             {
                 return "Profile name is required and must be at least 2 characters.";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.ApplicantName))
+            if (string.IsNullOrWhiteSpace(prototype.ApplicantName))
             {
                 return "Applicant name is required.";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.Phone))
+            if (string.IsNullOrWhiteSpace(prototype.Phone))
             {
                 return "Phone is required.";
             }
 
-            if (string.IsNullOrWhiteSpace(profile.Email) || !profile.Email.Contains('@'))
+            if (string.IsNullOrWhiteSpace(prototype.Email) || !prototype.Email.Contains('@'))
             {
                 return "Valid email is required.";
             }

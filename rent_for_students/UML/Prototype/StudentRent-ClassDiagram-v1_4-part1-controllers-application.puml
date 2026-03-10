@@ -1,10 +1,10 @@
-@startuml ClassDiagram-v1_3-part1-controllers-application
+@startuml ClassDiagram-v1_4-part1-controllers-application
 hide empty members
 skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
 left to right direction
 
-title StudentRent v1.3 - Part 1 (Controllers + Application, Prototype flow)
+title StudentRent v1.4 - Part 1 (Controllers + Application, Prototype refactor target)
 
 package "Controllers" {
   class ListingsController {
@@ -53,7 +53,7 @@ package "Application.Commands" {
 
   class CreateRentalApplicationProfileCommand {
     -_receiver: IApplicationUseCaseMediator
-    -_profile: RentalApplicationProfile
+    -_prototype: IRentalApplicationPrototype
   }
 
   class GetRentalApplicationProfilesCommand {
@@ -83,7 +83,7 @@ package "Application.UseCases" {
   interface IApplicationUseCaseMediator {
     +ApplyAsync(listingId, applicant, ct)
     +ApplyFromProfileAsync(listingId, profileId, ct)
-    +CreateProfileAsync(profile, ct)
+    +CreateProfileAsync(prototype, ct)
     +ListProfilesAsync(ct)
     +ListByListingIdAsync(listingId, ct)
   }
@@ -91,7 +91,7 @@ package "Application.UseCases" {
   class ApplicationUseCaseMediator {
     -_housingService: HousingService
     -_rentalApplicationRepository: IRentalApplicationRepository
-    -_profileRepository: IRentalApplicationProfileRepository
+    -_prototypeRepository: IRentalApplicationProfileRepository
   }
 }
 
@@ -107,19 +107,14 @@ package "Application.Notifications" {
 }
 
 package "ViewModels" {
-  class RentalApplicationCreateViewModel {
-    +ListingId: Guid
-    +ApplicantName: string
-    +Phone: string
-    +Email: string
-    +Message: string
-    +SaveAsProfile: bool
-    +ProfileName: string
-  }
+  class RentalApplicationCreateViewModel
+  class RentalApplicationFromProfileViewModel
+}
 
-  class RentalApplicationFromProfileViewModel {
-    +ListingId: Guid
-    +ProfileId: Guid
+package "Domain.Prototype" {
+  interface IRentalApplicationPrototype {
+    +Clone(): IRentalApplicationPrototype
+    +ToRentalApplication(listingId: Guid): RentalApplication
   }
 }
 
@@ -140,12 +135,12 @@ ApplicationUseCaseMediator ..|> IApplicationUseCaseMediator
 ListingUseCaseMediator --|> BaseUseCaseMediator
 ApplicationUseCaseMediator --|> BaseUseCaseMediator
 
-GetListingDetailsCommand ..|> ICommandT
-CreateRentalApplicationCommand ..|> ICommandT
-GetListingApplicationsCommand ..|> ICommandT
 CreateRentalApplicationProfileCommand ..|> ICommandT
 GetRentalApplicationProfilesCommand ..|> ICommandT
 CreateRentalApplicationFromProfileCommand ..|> ICommandT
+GetListingDetailsCommand ..|> ICommandT
+CreateRentalApplicationCommand ..|> ICommandT
+GetListingApplicationsCommand ..|> ICommandT
 
 ApplicationsController --> RentalApplicationCreateViewModel
 ApplicationsController --> RentalApplicationFromProfileViewModel
@@ -153,14 +148,7 @@ ApplicationsController --> CommandDispatcher
 ApplicationsController --> IListingUseCaseMediator
 ApplicationsController --> IApplicationUseCaseMediator
 
-ListingsController --> CommandDispatcher
-ListingsController --> IListingUseCaseMediator
-
 CommandDispatcher --> ICommandT
-
-GetListingDetailsCommand --> IListingUseCaseMediator
-CreateRentalApplicationCommand --> IApplicationUseCaseMediator
-GetListingApplicationsCommand --> IApplicationUseCaseMediator
 CreateRentalApplicationProfileCommand --> IApplicationUseCaseMediator
 GetRentalApplicationProfilesCommand --> IApplicationUseCaseMediator
 CreateRentalApplicationFromProfileCommand --> IApplicationUseCaseMediator
@@ -169,18 +157,15 @@ ApplicationUseCaseMediator --> HousingService
 ApplicationUseCaseMediator --> IRentalApplicationRepository
 ApplicationUseCaseMediator --> IRentalApplicationProfileRepository
 ApplicationUseCaseMediator --> INotificationService
+ApplicationUseCaseMediator --> IRentalApplicationPrototype
 BaseUseCaseMediator --> OperationValidationResult
 
-CreateRentalApplicationCommand --> RentalApplication
-CreateRentalApplicationProfileCommand --> RentalApplicationProfile
-CreateRentalApplicationFromProfileCommand --> RentalApplicationProfile
-GetRentalApplicationProfilesCommand --> RentalApplicationProfile
+RentalApplicationProfile ..|> IRentalApplicationPrototype
 
 note right of ApplicationsController
-  Prototype v1.3 flow in controller:
-  1) Apply(model) -> optionally CreateRentalApplicationProfileCommand
-  2) ApplyFromProfile(model) -> CreateRentalApplicationFromProfileCommand
-  3) GET Apply(listingId) -> GetRentalApplicationProfilesCommand
+  v1.4 target:
+  same command flow as v1.3,
+  but Prototype accessed through interface.
 end note
 
 @enduml

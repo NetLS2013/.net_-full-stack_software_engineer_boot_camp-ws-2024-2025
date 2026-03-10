@@ -1,6 +1,6 @@
 using rent_for_students.Application.Common;
 using rent_for_students.Application.UseCases;
-using rent_for_students.Domain.Entities;
+using rent_for_students.Domain.Contracts;
 
 namespace rent_for_students.Application.Commands
 {
@@ -8,15 +8,15 @@ namespace rent_for_students.Application.Commands
     public sealed class CreateRentalApplicationProfileCommand : ICommand<Guid>
     {
         private readonly IApplicationUseCaseMediator _receiver;
-        private readonly RentalApplicationProfile _profile;
+        private readonly IRentalApplicationPrototype _prototype;
 
-        public CreateRentalApplicationProfileCommand(IApplicationUseCaseMediator receiver, RentalApplicationProfile profile)
+        public CreateRentalApplicationProfileCommand(IApplicationUseCaseMediator receiver, IRentalApplicationPrototype prototype)
         {
             _receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
-            _profile = profile ?? throw new ArgumentNullException(nameof(profile));
+            _prototype = prototype ?? throw new ArgumentNullException(nameof(prototype));
         }
 
         public Task<Result<Guid>> ExecuteAsync(CancellationToken ct = default)
-            => _receiver.CreateProfileAsync(_profile, ct);
+            => _receiver.CreateProfileAsync(_prototype, ct);
     }
 }
