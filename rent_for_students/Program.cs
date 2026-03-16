@@ -4,6 +4,7 @@ using rent_for_students.Application.Commands;
 using rent_for_students.Application.Notifications;
 using rent_for_students.Application.UseCases;
 using rent_for_students.Domain.Contracts;
+using rent_for_students.Domain.Flyweight;
 using rent_for_students.Domain.Services;
 using rent_for_students.Infrastructure.Data;
 using rent_for_students.Infrastructure.Notifications;
@@ -32,6 +33,8 @@ builder.Services.AddScoped<IListingUseCaseMediator, ListingUseCaseMediator>();
 builder.Services.AddScoped<IApplicationUseCaseMediator, ApplicationUseCaseMediator>();
 
 builder.Services.AddScoped<CommandDispatcher>();
+
+builder.Services.AddSingleton<RoomTypeFlyweightFactory>();
 
 var app = builder.Build();
 

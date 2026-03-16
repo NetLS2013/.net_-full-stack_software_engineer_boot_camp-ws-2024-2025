@@ -1,4 +1,6 @@
 ﻿@using rent_for_students.ViewModels
+@using rent_for_students.Domain.Flyweight
+@inject RoomTypeFlyweightFactory RoomTypeFactory
 @model ListingListViewModel
 @{
     ViewData["Title"] = "Оголошення";
@@ -20,8 +22,12 @@
 
         <div>
             <label>Тип</label>
-            <select asp-for="Filter.RoomType" asp-items="Html.GetEnumSelectList<RoomType>()">
+            <select asp-for="Filter.RoomType">
                 <option value="">(будь-який)</option>
+                @foreach (var pair in RoomTypeFactory.GetAll())
+                {
+                    <option value="@pair.Key">@pair.Value.DisplayName</option>
+                }
             </select>
         </div>
 
@@ -67,7 +73,7 @@ else
         }
     </div>
         <div>Ціна: <strong>@item.PricePerMonth</strong> / міс</div>
-        <div>Тип: @item.RoomType • Площа: @item.AreaSqm м²</div>
+        <div>Тип: <span class="@RoomTypeFactory.GetFlyweight(item.RoomType).CssClass">@RoomTypeFactory.GetFlyweight(item.RoomType).DisplayName</span> • Площа: @item.AreaSqm м²</div>
         <div>Статус: @(item.IsActive ? "Published" : "Draft")</div>
         <div style="margin-top:8px;">
             <a class="btn" asp-action="Details" asp-route-id="@item.Id">Деталі</a>

@@ -1,8 +1,11 @@
 ﻿@using rent_for_students.ViewModels
+@using rent_for_students.Domain.Flyweight
+@inject RoomTypeFlyweightFactory RoomTypeFactory
 @model ListingDetailsViewModel
 @{
     ViewData["Title"] = "Деталі";
     var l = Model.Listing;
+    IRoomTypeFlyweight roomFlyweight = RoomTypeFactory.GetFlyweight(l.RoomType);
 }
 
 <h2>Деталі оголошення</h2>
@@ -23,7 +26,9 @@
         }
 </div>
     <div style="margin-top:8px;">Ціна: <strong>@l.PricePerMonth</strong> / міс</div>
-    <div>Тип: @l.RoomType</div>
+    <div>Тип: <span class="@roomFlyweight.CssClass">@roomFlyweight.DisplayName</span></div>
+    <div>@roomFlyweight.Description</div>
+    <div>Місткість: @roomFlyweight.TypicalCapacity ос.</div>
     <div>Площа: @l.AreaSqm м²</div>
     <div>Статус: @(l.IsActive ? "Published" : "Draft")</div>
     <div class="muted" style="margin-top:8px;">Створено: @l.CreatedAtUtc.ToString("u")</div>

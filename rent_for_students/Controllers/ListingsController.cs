@@ -2,6 +2,7 @@
 using rent_for_students.Application.Commands;
 using rent_for_students.Application.UseCases;
 using rent_for_students.Domain.Entities;
+using rent_for_students.Domain.Flyweight;
 using rent_for_students.Mapping;
 using rent_for_students.ViewModels;
 
@@ -11,11 +12,16 @@ namespace rent_for_students.Controllers
     {
         private readonly CommandDispatcher _dispatcher;
         private readonly IListingUseCaseMediator _listingMediator;
+        private readonly RoomTypeFlyweightFactory _roomTypeFactory;
 
-        public ListingsController(CommandDispatcher dispatcher, IListingUseCaseMediator listingMediator)
+        public ListingsController(
+            CommandDispatcher dispatcher,
+            IListingUseCaseMediator listingMediator,
+            RoomTypeFlyweightFactory roomTypeFactory)
         {
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _listingMediator = listingMediator ?? throw new ArgumentNullException(nameof(listingMediator));
+            _roomTypeFactory = roomTypeFactory ?? throw new ArgumentNullException(nameof(roomTypeFactory));
         }
 
         [HttpGet]

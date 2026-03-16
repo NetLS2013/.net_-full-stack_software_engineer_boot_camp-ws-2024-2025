@@ -1,4 +1,6 @@
 ﻿@using rent_for_students.ViewModels
+@using rent_for_students.Domain.Flyweight
+@inject RoomTypeFlyweightFactory RoomTypeFactory
 @model ListingCreateViewModel
 @{
     ViewData["Title"] = "Створити оголошення";
@@ -30,7 +32,12 @@
     <span asp-validation-for="PricePerMonth" style="color:#b00020;"></span>
 
     <label>Тип кімнати</label>
-    <select asp-for="RoomType" asp-items="Html.GetEnumSelectList<RoomType>()"></select>
+    <select asp-for="RoomType">
+        @foreach (var pair in RoomTypeFactory.GetAll())
+        {
+            <option value="@pair.Key">@pair.Value.DisplayName</option>
+        }
+    </select>
     <span asp-validation-for="RoomType" style="color:#b00020;"></span>
 
     <label>Площа (м²)</label>
