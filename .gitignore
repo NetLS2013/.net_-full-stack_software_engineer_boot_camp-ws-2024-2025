@@ -372,3 +372,6 @@ rent_for_students/rentservice.db*
 rent_for_students/rentservice.db
 rent_for_students/rentservice.db-shm
 rent_for_students/rentservice.db-wal
+rent_for_students/.claude/settings.local.json
+rent_for_students/.azure/config
+rent_for_students/DEPLOY.md
