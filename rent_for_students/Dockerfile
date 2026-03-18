@@ -3,10 +3,10 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY rent_for_students.csproj .
-RUN dotnet restore
+RUN dotnet restore rent_for_students.csproj
 
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish rent_for_students.csproj -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime

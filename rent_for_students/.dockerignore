@@ -1,12 +1,34 @@
+# Build artifacts
 bin/
 obj/
+publish/
+
+# IDE
 .vs/
+.vscode/
+
+# SQLite databases (will be created at runtime)
 *.db
 *.db-shm
 *.db-wal
+
+# Dev config (Production config IS needed)
+appsettings.Development.json
+
+# Tests (not needed in production image)
 tests/
+
+# Docs & diagrams
 docs/
+Docs_UML/
 UML/
 *.md
-.claude/
+
+# Docker & CI files (no need to copy into build context)
+Dockerfile
+.dockerignore
+
+# Git & tools
 .git/
+.gitignore
+.claude/
