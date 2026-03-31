@@ -2,6 +2,7 @@ using rent_for_students.Domain.Entities;
 
 namespace rent_for_students.Domain.Flyweight
 {
+    // PROMPT v1.5: Flyweight Factory - caches and returns shared RoomType flyweights
     public class RoomTypeFlyweightFactory
     {
         private readonly Dictionary<RoomType, IRoomTypeFlyweight> _cache = new Dictionary<RoomType, IRoomTypeFlyweight>();

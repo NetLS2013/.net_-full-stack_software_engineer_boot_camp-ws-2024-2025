@@ -2,6 +2,7 @@ using rent_for_students.Domain.Entities;
 
 namespace rent_for_students.Domain.Flyweight
 {
+    // PROMPT v1.5: ConcreteFlyweight - immutable RoomType metadata object
     public class RoomTypeFlyweight : IRoomTypeFlyweight
     {
         public RoomType Type { get; }

@@ -19,13 +19,15 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
+    // PROMPT v1.6: Database migration SQLite -> SQL Server
     var cs = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlite(cs);
+    options.UseSqlServer(cs);
 });
 
-builder.Services.AddScoped<IHousingRepository, EfHousingRepository>();
-builder.Services.AddScoped<IRentalApplicationRepository, EfRentalApplicationRepository>();
-builder.Services.AddScoped<IRentalApplicationProfileRepository, EfRentalApplicationProfileRepository>();
+// PROMPT v1.6: SP-based repositories (integrated stored procedures)
+builder.Services.AddScoped<IHousingRepository, SpHousingRepository>();
+builder.Services.AddScoped<IRentalApplicationRepository, SpRentalApplicationRepository>();
+builder.Services.AddScoped<IRentalApplicationProfileRepository, SpRentalApplicationProfileRepository>();
 builder.Services.AddScoped<HousingService>();
 
 builder.Services.AddScoped<INotificationService, LogNotificationService>();
@@ -34,6 +36,7 @@ builder.Services.AddScoped<IApplicationUseCaseMediator, ApplicationUseCaseMediat
 
 builder.Services.AddScoped<CommandDispatcher>();
 
+// PROMPT v1.5: Flyweight Factory registered as Singleton (shared cache)
 builder.Services.AddSingleton<RoomTypeFlyweightFactory>();
 
 var app = builder.Build();
