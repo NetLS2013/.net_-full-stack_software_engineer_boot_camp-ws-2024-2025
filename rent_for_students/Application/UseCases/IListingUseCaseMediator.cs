@@ -1,5 +1,6 @@
 using rent_for_students.Application.Common;
 using rent_for_students.Domain.Entities;
+using rent_for_students.Domain.Reports;
 using rent_for_students.Domain.Requests;
 
 namespace rent_for_students.Application.UseCases
@@ -13,5 +14,6 @@ namespace rent_for_students.Application.UseCases
         Task<Result<bool>> UpdateDraftAsync(Guid id, HousingListing draft, CancellationToken ct = default);
         Task<Result<bool>> PublishAsync(Guid id, CancellationToken ct = default);
         Task<Result<bool>> UpdateAsync(Guid id, HousingListing listing, CancellationToken ct = default);
+        Task<Result<IReadOnlyList<ListingDemandReportRow>>> GetDemandReportAsync(CancellationToken ct = default);
     }
 }

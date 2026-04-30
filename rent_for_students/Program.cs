@@ -28,6 +28,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IHousingRepository, SpHousingRepository>();
 builder.Services.AddScoped<IRentalApplicationRepository, SpRentalApplicationRepository>();
 builder.Services.AddScoped<IRentalApplicationProfileRepository, SpRentalApplicationProfileRepository>();
+// PROMPT v1.7: Report repository — View + cursor SP
+builder.Services.AddScoped<IListingReportRepository, SpListingReportRepository>();
 builder.Services.AddScoped<HousingService>();
 
 builder.Services.AddScoped<INotificationService, LogNotificationService>();

@@ -14,7 +14,7 @@ namespace rent_for_students.Tests
             var housingRepo = new InMemoryHousingRepository();
             var notifications = new TestNotificationService();
             var housingService = new HousingService(housingRepo);
-            var sut = new ListingUseCaseMediator(housingService, notifications);
+            var sut = new ListingUseCaseMediator(housingService, notifications, new StubListingReportRepository());
 
             var draft = new HousingListing
             {
@@ -52,7 +52,7 @@ namespace rent_for_students.Tests
             var housingRepo = new InMemoryHousingRepository();
             var notifications = new TestNotificationService();
             var housingService = new HousingService(housingRepo);
-            var sut = new ListingUseCaseMediator(housingService, notifications);
+            var sut = new ListingUseCaseMediator(housingService, notifications, new StubListingReportRepository());
 
             var invalid = new HousingListing
             {

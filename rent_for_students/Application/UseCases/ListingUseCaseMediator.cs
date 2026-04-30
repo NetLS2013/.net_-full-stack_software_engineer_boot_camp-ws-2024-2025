@@ -1,6 +1,8 @@
 using rent_for_students.Application.Common;
 using rent_for_students.Application.Notifications;
+using rent_for_students.Domain.Contracts;
 using rent_for_students.Domain.Entities;
+using rent_for_students.Domain.Reports;
 using rent_for_students.Domain.Requests;
 using rent_for_students.Domain.Services;
 
@@ -10,11 +12,16 @@ namespace rent_for_students.Application.UseCases
     public class ListingUseCaseMediator : BaseUseCaseMediator, IListingUseCaseMediator
     {
         private readonly HousingService _housingService;
+        private readonly IListingReportRepository _reportRepository;
 
-        public ListingUseCaseMediator(HousingService housingService, INotificationService notificationService)
+        public ListingUseCaseMediator(
+            HousingService housingService,
+            INotificationService notificationService,
+            IListingReportRepository reportRepository)
             : base(notificationService)
         {
             _housingService = housingService ?? throw new ArgumentNullException(nameof(housingService));
+            _reportRepository = reportRepository ?? throw new ArgumentNullException(nameof(reportRepository));
         }
 
         public async Task<Result<IReadOnlyList<HousingListing>>> SearchListingsAsync(ListingSearchCriteria criteria, CancellationToken ct = default)
@@ -162,6 +169,13 @@ namespace rent_for_students.Application.UseCases
                 ListingCreateFlow.CreateDraft => $"Draft created: {createdId}",
                 _ => null
             };
+        }
+
+        // PROMPT v1.7: Demand report via View + cursor SP
+        public async Task<Result<IReadOnlyList<ListingDemandReportRow>>> GetDemandReportAsync(CancellationToken ct = default)
+        {
+            IReadOnlyList<ListingDemandReportRow> rows = await _reportRepository.GetDemandReportAsync(ct);
+            return Result<IReadOnlyList<ListingDemandReportRow>>.Success(rows);
         }
 
         private static string? ValidateListing(HousingListing listing)
